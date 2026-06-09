@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Most Dangerous Animal By State</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f5f0;
+        }
+        #map-title {
+            text-align: center;
+            padding: 20px 10px 5px 10px;
+            margin: 0;
+            background-color: #f7f5f0;
+            color: #222;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+        #map-subtitle {
+            text-align: center;
+            margin: 0 0 15px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        #map {
+            width: 100%;
+            height: 600px;
+            max-width: 1000px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #aad3df; /* Ocean color */
+        }
+        .info {
+            padding: 12px 15px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            color: #333;
+        }
+        .info h4 {
+            margin: 0 0 5px;
+            color: #222;
+        }
+        .legend {
+            line-height: 18px;
+            color: #555;
+            background: white;
+            background: rgba(255,255,255,0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="map-title">The Most Dangerous Animal By State</h1>
+    <p id="map-subtitle">Highest Annual Odds of a Severe Encounter or Injury (Excluding Dogs)</p>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize the map focused on the US
+        const map = L.map('map', {
+            center: [37.8, -96],
+            zoom: 4,
+            zoomControl: true
+        });
+
+        // Add a clean, minimalist base map layer (CartoDB Positron)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+        }).addTo(map);
+
+        // Core State-by-State Wildlife Data Matrix
+        const animalData = {
+            "Alabama": { culprit: "Domestic Cattle", odds: "1 in 145,000", prob: "0.00069%", category: "Livestock" },
+            "Alaska": { culprit: "American Moose", odds: "1 in 35,000", prob: "0.00286%", category: "Large Wild Mammals" },
+            "Arizona": { culprit: "Arizona Bark Scorpion", odds: "1 in 68,000", prob: "0.00147%", category: "Venomous Creepers" },
+            "Arkansas": { culprit: "Whitetail Deer", odds: "1 in 44,500", prob: "0.00225%", category: "Deer Collisions" },
+            "California": { culprit: "Southern Pacific Rattlesnake", odds: "1 in 125,000", prob: "0.00080%", category: "Venomous Creepers" },
+            "Colorado": { culprit: "Mountain Lion", odds: "1 in 210,000", prob: "0.00048%", category: "Apex Predators" },
+            "Connecticut": { culprit: "Blacklegged Tick (Lyme Disease)", odds: "1 in 75,000", prob: "0.00133%", category: "Ticks & Parasites" },
+            "Delaware": { culprit: "Common Yellow Jacket", odds: "1 in 180,000", prob: "0.00056%", category: "Stinging Insects" },
+            "Florida": { culprit: "American Alligator", odds: "1 in 83,000", prob: "0.00120%", category: "Apex Predators" },
+            "Georgia": { culprit: "Southern Copperhead", odds: "1 in 62,000", prob: "0.00161%", category: "Venomous Creepers" },
+            "Hawaii": { culprit: "Tiger Shark", odds: "1 in 290,000", prob: "0.00034%", category: "Apex Predators" },
+            "Idaho": { culprit: "Domestic Cattle", odds: "1 in 88,000", prob: "0.00114%", category: "Livestock" },
+            "Illinois": { culprit: "Whitetail Deer", odds: "1 in 115,000", prob: "0.00087%", category: "Deer Collisions" },
+            "Indiana": { culprit: "Whitetail Deer", odds: "1 in 98,000", prob: "0.00102%", category: "Deer Collisions" },
+            "Iowa": { culprit: "Domestic Cattle", odds: "1 in 64,000", prob: "0.00156%", category: "Livestock" },
+            "Kansas": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", category: "Livestock" },
+            "Kentucky": { culprit: "Thoroughbred Horse", odds: "1 in 72,000", prob: "0.00139%", category: "Livestock" },
+            "Louisiana": { culprit: "Invasive Fire Ant", odds: "1 in 95,000", prob: "0.00105%", category: "Venomous Creepers" },
+            "Maine": { culprit: "American Moose", odds: "1 in 48,000", prob: "0.00208%", category: "Large Wild Mammals" },
+            "Maryland": { culprit: "Common Honeybee", odds: "1 in 140,000", prob: "0.00071%", category: "Stinging Insects" },
+            "Massachusetts": { culprit: "Common Paper Wasp", odds: "1 in 8,185,535", prob: "0.00001%", category: "Stinging Insects" },
+            "Michigan": { culprit: "Whitetail Deer", odds: "1 in 85,000", prob: "0.00118%", category: "Deer Collisions" },
+            "Minnesota": { culprit: "Whitetail Deer", odds: "1 in 74,000", prob: "0.00135%", category: "Deer Collisions" },
+            "Mississippi": { culprit: "Pit Vipers", odds: "1 in 59,500", prob: "0.00168%", category: "Venomous Creepers" },
+            "Missouri": { culprit: "Domestic Cattle", odds: "1 in 82,000", prob: "0.00122%", category: "Livestock" },
+            "Montana": { culprit: "Grizzly Bear", odds: "1 in 21,000", prob: "0.00476%", category: "Apex Predators" },
+            "Nebraska": { culprit: "Domestic Cattle", odds: "1 in 58,000", prob: "0.00172%", category: "Livestock" },
+            "Nevada": { culprit: "Deer Mouse (Hantavirus)", odds: "1 in 165,000", prob: "0.00061%", category: "Ticks & Parasites" },
+            "New Hampshire": { culprit: "Whitetail Deer", odds: "1 in 130,000", prob: "0.00077%", category: "Deer Collisions" },
+            "New Jersey": { culprit: "Eastern Yellow Jacket", odds: "1 in 195,000", prob: "0.00051%", category: "Stinging Insects" },
+            "New Mexico": { culprit: "Large Free-Ranging Mammals", odds: "1 in 41,000", prob: "0.00244%", category: "Large Wild Mammals" },
+            "New York": { culprit: "Common Hornet", odds: "1 in 240,000", prob: "0.00042%", category: "Stinging Insects" },
+            "North Carolina": { culprit: "Invasive Fire Ant", odds: "1 in 78,000", prob: "0.00128%", category: "Venomous Creepers" },
+            "North Dakota": { culprit: "American Bison", odds: "1 in 92,000", prob: "0.00109%", category: "Large Wild Mammals" },
+            "Ohio": { culprit: "Common Yellow Jacket", odds: "1 in 110,000", prob: "0.00091%", category: "Stinging Insects" },
+            "Oklahoma": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", category: "Livestock" },
+            "Oregon": { culprit: "Yellow Jackets & Wasps", odds: "1 in 120,000", prob: "0.00083%", category: "Stinging Insects" },
+            "Pennsylvania": { culprit: "Common Honeybee", odds: "1 in 95,000", prob: "0.00105%", category: "Stinging Insects" },
+            "Rhode Island": { culprit: "Blacklegged Tick", odds: "1 in 140,000", prob: "0.00071%", category: "Ticks & Parasites" },
+            "South Carolina": { culprit: "Paper Wasp", odds: "1 in 84,000", prob: "0.00119%", category: "Stinging Insects" },
+            "South Dakota": { culprit: "Domestic Cattle", odds: "1 in 48,000", prob: "0.00208%", category: "Livestock" },
+            "Tennessee": { culprit: "Brown Recluse Spider", odds: "1 in 42,435", prob: "0.00236%", category: "Venomous Creepers" },
+            "Texas": { culprit: "Invasive Fire Ant", odds: "1 in 52,000", prob: "0.00192%", category: "Venomous Creepers" },
+            "Utah": { culprit: "Whitetail & Mule Deer", odds: "1 in 89,000", prob: "0.00112%", category: "Deer Collisions" },
+            "Vermont": { culprit: "Blacklegged Tick", odds: "1 in 68,000", prob: "0.00147%", category: "Ticks & Parasites" },
+            "Virginia": { culprit: "Common Yellow Jacket", odds: "1 in 105,000", prob: "0.00095%", category: "Stinging Insects" },
+            "Washington": { culprit: "Western Yellow Jacket", odds: "1 in 155,000", prob: "0.00065%", category: "Stinging Insects" },
+            "West Virginia": { culprit: "Whitetail Deer", odds: "1 in 30,271", prob: "0.00330%", category: "Deer Collisions" },
+            "Wisconsin": { culprit: "Whitetail Deer", odds: "1 in 62,000", prob: "0.00161%", category: "Deer Collisions" },
+            "Wyoming": { culprit: "Grizzly Bear", odds: "1 in 28,000", prob: "0.00357%", category: "Apex Predators" }
+        };
+
+        // Color-Coding Rules Match System (Strict categorical consistency)
+        function getColor(category) {
+            return category === 'Deer Collisions'   ? '#dfc27d' : // Tan/Amber
+                   category === 'Stinging Insects'  ? '#f4e04d' : // Vibrant Yellow
+                   category === 'Livestock'         ? '#4575b4' : // Soft Blue
+                   category === 'Venomous Creepers' ? '#d73027' : // True Red
+                   category === 'Apex Predators'    ? '#762a83' : // Deep Purple
+                   category === 'Large Wild Mammals'? '#1b7837' : // Forest Green
+                   category === 'Ticks & Parasites' ? '#969696' : // Slate Grey
+                                                      '#ffffff';
+        }
+
+        function style(feature) {
+            const stateName = feature.properties.name;
+            const data = animalData[stateName];
+            return {
+                fillColor: data ? getColor(data.category) : '#fff',
+                weight: 1.5,
+                opacity: 1,
+                color: '#fff',
+                fillOpacity: 0.85
+            };
+        }
+
+        // Interaction Framework
+        const info = L.control();
+
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+
+        info.update = function (props) {
+            this._div.innerHTML = '<h4>State Encounter Assessment</h4>' +  (props ?
+                '<b>' + props.name + '</b><br />' +
+                '🎯 Top Hazard: <strong>' + animalData[props.name].culprit + '</strong><br />' +
+                '📊 Annual Odds: ' + animalData[props.name].odds + '<br />' +
+                '📈 Implied Annual Probability: ' + animalData[props.name].prob
+                : 'Hover over a state to inspect risks');
+        };
+
+        info.addTo(map);
+
+        function highlightFeature(e) {
+            const layer = e.target;
+            layer.setStyle({
+                weight: 3,
+                color: '#222',
+                fillOpacity: 0.95
+            });
+            layer.bringToFront();
+            info.update(layer.feature.properties);
+        }
+
+        let geojson;
+
+        function resetHighlight(e) {
+            geojson.resetStyle(e.target);
+            info.update();
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight
+            });
+        }
+
+        // Fetch USA State Borders GeoJSON dynamically
+        fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
+            .then(response => response.json())
+            .then(data => {
+                geojson = L.geoJson(data, {
+                    style: style,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+            });
+
+        // Map Legend Generation
+        const legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'legend');
+            const categories = [
+                'Deer Collisions', 
+                'Stinging Insects', 
+                'Livestock', 
+                'Venomous Creepers', 
+                'Apex Predators', 
+                'Large Wild Mammals', 
+                'Ticks & Parasites'
+            ];
+
+            div.innerHTML += '<strong>Hazard Legend</strong><br>';
+            for (let i = 0; i < categories.length; i++) {
+                div.innerHTML +=
+                    '<i style="background:' + getColor(categories[i]) + '"></i> ' +
+                    categories[i] + '<br>';
+            }
+            return div;
+        };
+
+        legend.addTo(map);
+    </script>
+</body>
+</html>
