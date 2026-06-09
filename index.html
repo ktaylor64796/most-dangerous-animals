@@ -10,14 +10,14 @@
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #fcfbf7; /* Off-white warm background matching image */
+            background-color: #fcfbf7; /* Warm graphic background matching asset */
         }
         #map-title {
             text-align: center;
             padding: 25px 10px 5px 10px;
             margin: 0;
             color: #111;
-            font-size: 28px;
+            font-size: 26px;
             text-transform: uppercase;
             font-weight: 900;
             letter-spacing: 0.5px;
@@ -26,58 +26,73 @@
             text-align: center;
             margin: 0 0 20px 0;
             color: #444;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         #map {
             width: 100%;
-            height: 620px;
-            max-width: 1050px;
+            height: 650px;
+            max-width: 1100px;
             margin: 0 auto;
-            background: #fcfbf7; /* Removed the blue ocean background for a clean cutout style */
+            background: #fcfbf7;
         }
-        /* State Graphic Marker Styling */
-        .state-icon-svg {
+        /* State Graphic Label & Mini-Icon Styling */
+        .state-label-container {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
             pointer-events: none;
         }
-        .state-icon-svg svg {
-            width: 26px;
-            height: 26px;
-            fill: #2c2520; /* Dark charcoal silhouette fill */
-            filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.15));
-            opacity: 0.85;
+        .state-icon-emoji {
+            font-size: 18px;
+            filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.3));
+            line-height: 1;
+            margin-bottom: 2px;
         }
-        /* Minimalist Hover Card UI */
+        .state-text-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #111;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        /* Minimalist Hover UI Card */
         .info {
-            padding: 10px 14px;
+            padding: 12px 16px;
             font: bold 13px Helvetica, Arial, sans-serif;
             background: #fff;
-            border: 2px solid #2c2520;
-            box-shadow: 4px 4px 0px #2c2520;
-            border-radius: 0px;
-            color: #2c2520;
+            border: 2px solid #222;
+            box-shadow: 4px 4px 0px #222;
+            color: #222;
+            max-width: 280px;
         }
         .info h4 {
             margin: 0 0 6px;
             text-transform: uppercase;
             font-size: 14px;
-            border-bottom: 2px solid #2c2520;
-            padding-bottom: 3px;
+            border-bottom: 2px solid #222;
+            padding-bottom: 4px;
         }
-        /* Minimalist Legend Block */
+        .info p {
+            margin: 4px 0;
+            font-weight: 500;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        /* Minimalist Map Legend Key */
         .legend {
-            line-height: 20px;
-            color: #2c2520;
+            line-height: 22px;
+            color: #222;
             background: white;
             padding: 12px;
-            border: 2px solid #2c2520;
-            box-shadow: 4px 4px 0px #2c2520;
-            font: bold 12px Arial, sans-serif;
+            border: 2px solid #222;
+            box-shadow: 4px 4px 0px #222;
+            font: bold 11px Arial, sans-serif;
             text-transform: uppercase;
         }
         .legend i {
@@ -85,186 +100,185 @@
             height: 16px;
             float: left;
             margin-right: 10px;
-            border: 1px solid rgba(0,0,0,0.2);
+            border: 1px solid rgba(0,0,0,0.3);
         }
     </style>
 </head>
 <body>
 
-    <h1 id="map-title">The Most Dangerous Wildlife By State</h1>
-    <h2 id="map-subtitle">Visual Culprits (Excl. Dogs)</h2>
+    <h1 id="map-title">The Most Dangerous Wildlife & Livestock By State</h1>
+    <h2 id="map-subtitle">Categorical Environmental Risks (Excl. Dogs)</h2>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Setup minimalist viewport tracking solely on the lower 48
+        // Zoom configuration directly targets the lower 48 configurations
         const map = L.map('map', {
-            center: [38.0, -96.5],
+            center: [38.5, -96.5],
             zoom: 5,
             zoomControl: false,
             dragging: true,
             scrollWheelZoom: false
         });
 
-        // Universal Custom SVG Path Dictionary matching our main state categories
-        const svgPaths = {
-            deer: `<svg viewBox="0 0 24 24"><path d="M12,2C11.5,3.5 10,4.5 8,4.5V6C10,6 11,7 11,8.5V11H7V9H5V11H3V13H5V21H7V13H11V21H13V13H17V21H19V13H21V11H19V9H17V11H13V8.5C13,7 14,6 16,6V4.5C14,4.5 12.5,3.5 12,2Z"/></svg>`,
-            insect: `<svg viewBox="0 0 24 24"><path d="M12,2A3,3 0 0,1 15,5V7H17V9H15V11H18V13H15V15H17V17H15V19A3,3 0 0,1 12,22A3,3 0 0,1 9,19V17H7V15H9V13H6V11H9V9H7V7H9V5A3,3 0 0,1 12,2Z"/></svg>`,
-            livestock: `<svg viewBox="0 0 24 24"><path d="M22,11C22,10 20,9 18,9H15V6A2,2 0 0,0 13,4H7A2,2 0 0,0 5,6V9H2V11H4V19H6V16H16V19H18V11H22M14,11H8V8H14V11Z"/></svg>`,
-            creeper: `<svg viewBox="0 0 24 24"><path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,18A3,3 0 0,1 9,15C9,13.7 9.8,12.6 11,12.1V9.1C9.8,8.6 9,7.5 9,6.2A3,3 0 0,1 12,3.2A3,3 0 0,1 15,6.2C15,7.5 14.2,8.6 13,9.1V12.1C14.2,12.6 15,13.7 15,15A3,3 0 0,1 12,18Z"/></svg>`,
-            predator: `<svg viewBox="0 0 24 24"><path d="M2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z"/></svg>`,
-            parasite: `<svg viewBox="0 0 24 24"><path d="M11,2v3c-2.2,0.5-4,2.3-4.5,4.5H4v2h2.6C6.9,12.7,7.9,13.7,9,14.2V21h2v-5.2c1,.4,2.1,.4,3,0V21h2v-6.8c1.1-.5,2.1-1.5,2.4-2.7H20v-2h-2.5C17,7.3,15.2,5.5,13,5V2H11z"/></svg>`
+        // Categorical Flat Color Palette definitions
+        const categoryColors = {
+            'Cattle/Livestock':  '#6ba2d6', // Blue
+            'Large Wild Mammals':'#5f9e74', // Green
+            'Scorpion/Spiders':  '#b0a3bd', // Purple
+            'Deer Collisions':   '#dfc17d', // Tan
+            'Venomous Creepers': '#d94136', // Red
+            'Apex Predators':    '#8a475d', // Plum
+            'Ticks & Parasites': '#969696', // Slate Grey
+            'Stinging Insects':  '#ebd659'  // Yellow
         };
 
-        // Master Flat Core Colors (Direct matching to image color architecture)
-        const stateColors = {
-            'Deer Collisions':   '#dfc17d', // Warm Tan / Amber
-            'Stinging Insects':  '#ebd659', // Graphic Matte Yellow
-            'Livestock':         '#6ba2d6', // Flat Steel Blue
-            'Venomous Creepers': '#d94136', // Solid Crimson
-            'Apex Predators':    '#8a475d', // Deep Plum Muted Burgundy
-            'Large Wild Mammals': '#5f9e74', // Flat Sage / Forest Green
-            'Ticks & Parasites': '#b0a3bd'  // Soft Pastel Slate Muted Lavender
+        // Master 50-State Comprehensive Dataset Mapping Matrix
+        const stateWildlifeData = {
+            "Alabama": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 145,000", prob: "0.00069%", cat: "Cattle/Livestock", text: "Deep-woods copperheads dominate local lore, but heavy pasture infrastructure creates a far more dangerous reality.", lat: 32.8, lng: -86.8 },
+            "Alaska": { culprit: "American Moose", emoji: "🫎", odds: "1 in 35,000", prob: "0.00286%", cat: "Large Wild Mammals", text: "Weighing up to 1,500 pounds, pitch-black moose are a massive vehicular hazard on unlit highways.", lat: 61.3, lng: -152.4 },
+            "Arizona": { culprit: "Arizona Bark Scorpion", emoji: "🦂", odds: "1 in 68,000", prob: "0.00147%", cat: "Scorpion/Spiders", text: "This is the only scorpion species in North America with life-threatening neurotoxic venom.", lat: 34.0, lng: -111.1 },
+            "Arkansas": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 44,500", prob: "0.00225%", cat: "Deer Collisions", text: "Impact forces regularly launch these 200-pound animals straight through windshields.", lat: 34.9, lng: -92.4 },
+            "California": { culprit: "Southern Pacific Rattlesnake", emoji: "🐍", odds: "1 in 125,000", prob: "0.00080%", cat: "Venomous Creepers", text: "Suburban developments pushing into chaparral hillsides bring millions into contact with pit vipers.", lat: 36.1, lng: -119.6 },
+            "Colorado": { culprit: "Mountain Lion", emoji: "🦁", odds: "1 in 210,000", prob: "0.00048%", cat: "Apex Predators", text: "Backcountry jogging corridors intersecting open canyons create localized ambush opportunities.", lat: 39.0, lng: -105.3 },
+            "Connecticut": { culprit: "Blacklegged Tick", emoji: "🕷️", odds: "1 in 75,000", prob: "0.00133%", cat: "Ticks & Parasites", text: "These ticks present high-density vectors for Lyme carditis, attacking the electrical system of the heart.", lat: 41.6, lng: -72.7 },
+            "Delaware": { culprit: "Common Yellow Jacket", emoji: "🐝", odds: "1 in 180,000", prob: "0.00056%", cat: "Stinging Insects", text: "Accidental lawnmower disruptions of hidden nests drive primary anaphylactic shock records.", lat: 39.3, lng: -75.5 },
+            "Florida": { culprit: "American Alligator", emoji: "🐊", odds: "1 in 83,000", prob: "0.00120%", cat: "Apex Predators", text: "Golf course water hazards and residential retention basins create high-frequency human interfaces.", lat: 27.7, lng: -81.6 },
+            "Georgia": { culprit: "Southern Copperhead", emoji: "🐍", odds: "1 in 62,000", prob: "0.00161%", cat: "Venomous Creepers", text: "Boasting elite camouflage, copperheads freeze when startled, making them easy to step on.", lat: 33.0, lng: -83.6 },
+            "Hawaii": { culprit: "Tiger Shark", emoji: "🦈", odds: "1 in 290,000", prob: "0.00034%", cat: "Apex Predators", text: "Shallow oceanic shelves surrounding the islands serve as major breeding zones for target shark prey.", lat: 21.1, lng: -157.5 },
+            "Idaho": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 88,000", prob: "0.00114%", cat: "Cattle/Livestock", text: "Agricultural workers spend extensive, unhedged operational hours handling massive livestock.", lat: 44.2, lng: -114.4 },
+            "Illinois": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 115,000", prob: "0.00087%", cat: "Deer Collisions", text: "Dawn and dusk commuter hours see high-volume animal strikes along secondary roads.", lat: 40.3, lng: -89.0 },
+            "Indiana": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 98,000", prob: "0.00102%", cat: "Deer Collisions", text: "Localized automotive deer impacts represent the primary source of wilderness trauma.", lat: 39.8, lng: -86.2 },
+            "Iowa": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 64,000", prob: "0.00156%", cat: "Cattle/Livestock", text: "Defensive mothers protecting newborn calves represent a major occupational threat.", lat: 42.0, lng: -93.3 },
+            "Kansas": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 56,000", prob: "0.00179%", cat: "Cattle/Livestock", text: "Heavy feedlot densities make blunt-force trauma from livestock the state’s primary animal hazard.", lat: 38.5, lng: -98.0 },
+            "Kentucky": { culprit: "Thoroughbred Horse", emoji: "🐎", odds: "1 in 72,000", prob: "0.00139%", cat: "Cattle/Livestock", text: "Risk profile centers on high-velocity falls, throws, and crushing impacts on breeding outposts.", lat: 37.6, lng: -84.6 },
+            "Louisiana": { culprit: "Invasive Fire Ant", emoji: "🐜", odds: "1 in 95,000", prob: "0.00105%", cat: "Venomous Creepers", text: "Flooding forces ant colonies into floating rafts, causing mass-stinging events if touched.", lat: 31.1, lng: -91.8 },
+            "Maine": { culprit: "American Moose", emoji: "🫎", odds: "1 in 48,000", prob: "0.00208%", cat: "Large Wild Mammals", text: "Long leg structures place their heavy bodies exactly at windshield height during crashes.", lat: 45.2, lng: -69.2 },
+            "Maryland": { culprit: "Common Honeybee", emoji: "🐝", odds: "1 in 140,000", prob: "0.00071%", cat: "Stinging Insects", text: "Dense suburban sprawl makes stinging hymenoptera the most common medical shock source.", lat: 39.0, lng: -76.8 },
+            "Massachusetts": { culprit: "Common Paper Wasp", emoji: "🐝", odds: "1 in 8,185,535", prob: "0.00001%", cat: "Stinging Insects", text: "Highly developed urban cores make Massachusetts the safest overall state for encounters.", lat: 42.2, lng: -71.8 },
+            "Michigan": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 85,000", prob: "0.00118%", cat: "Deer Collisions", text: "High numbers of registered drivers crossing forested peninsulas create massive strike metrics.", lat: 43.3, lng: -84.5 },
+            "Minnesota": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 74,000", prob: "0.00135%", cat: "Deer Collisions", text: "Forested hunting zones overlapping commuter routes ensure deer strikes remain dominant.", lat: 45.7, lng: -93.9 },
+            "Mississippi": { culprit: "Pit Vipers", emoji: "🐍", odds: "1 in 59,500", prob: "0.00168%", cat: "Venomous Creepers", text: "Expansive wetland networks keep timber rattlesnakes and water moccasins active longer.", lat: 32.7, lng: -89.6 },
+            "Missouri": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 82,000", prob: "0.00122%", cat: "Cattle/Livestock", text: "Broad pasture networks see high occupational crush rates during transport configurations.", lat: 38.4, lng: -92.2 },
+            "Montana": { culprit: "Grizzly Bear", emoji: "🐻", odds: "1 in 21,000", prob: "0.00476%", cat: "Apex Predators", text: "Startled grizzlies defending kills or cubs drive the nation's premier backcountry metrics.", lat: 46.9, lng: -110.4 },
+            "Nebraska": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 58,000", prob: "0.00172%", cat: "Cattle/Livestock", text: "Heavy livestock density places handlers in enclosed corrals with aggressive bulls.", lat: 41.1, lng: -98.2 },
+            "Nevada": { culprit: "Deer Mouse", emoji: "🐭", odds: "1 in 165,000", prob: "0.00061%", cat: "Ticks & Parasites", text: "Inhalation of airborne dust from dried rodent droppings can transmit lethal Hantavirus.", lat: 38.8, lng: -117.1 },
+            "New Hampshire": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 130,000", prob: "0.00077%", cat: "Deer Collisions", text: "Heavily forested highways experience consistent, severe deer-vehicle crossings.", lat: 43.4, lng: -71.5 },
+            "New Jersey": { culprit: "Eastern Yellow Jacket", emoji: "🐝", odds: "1 in 195,000", prob: "0.00051%", cat: "Stinging Insects", text: "Intense residential density causes frequent backyard ground-nest disruptions.", lat: 40.3, lng: -74.5 },
+            "New Mexico": { culprit: "Large Free-Ranging Mammals", emoji: "🐄", odds: "1 in 41,000", prob: "0.00244%", cat: "Large Wild Mammals", text: "Severe droughts push free-ranging range cattle and wild elk down onto dark transit corridors.", lat: 34.8, lng: -106.2 },
+            "New York": { culprit: "Common Hornet", emoji: "🐝", odds: "1 in 240,000", prob: "0.00042%", cat: "Stinging Insects", text: "Woodlands overlapping manicured parks make nesting wasps the top medical emergency threat.", lat: 42.1, lng: -74.9 },
+            "North Carolina": { culprit: "Invasive Fire Ant", emoji: "🐜", odds: "1 in 78,000", prob: "0.00128%", cat: "Venomous Creepers", text: "Rapid fire ant expansion leaves residents vulnerable during simple yard maintenance.", lat: 35.6, lng: -79.8 },
+            "North Dakota": { culprit: "American Bison", emoji: "🦬", odds: "1 in 92,000", prob: "0.00109%", cat: "Large Wild Mammals", text: "Bison easily outpace human sprinters and gore visitors who cross defensive buffer lines.", lat: 47.5, lng: -99.7 },
+            "Ohio": { culprit: "Common Yellow Jacket", emoji: "🐝", odds: "1 in 110,000", prob: "0.00091%", cat: "Stinging Insects", text: "Dense residential footprint keeps stinging insects as the single top wild threat.", lat: 40.4, lng: -82.9 },
+            "Oklahoma": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 56,000", prob: "0.00179%", cat: "Cattle/Livestock", text: "Storms compromise ranch fencing, letting livestock wander onto unlit country highways.", lat: 35.5, lng: -96.9 },
+            "Oregon": { culprit: "Yellow Jacket / Wasp", emoji: "🐝", odds: "1 in 120,000", prob: "0.00083%", cat: "Stinging Insects", text: "Logging and forestry workforces face persistent occupational swarm exposure risks.", lat: 44.5, lng: -122.1 },
+            "Pennsylvania": { culprit: "Common Honeybee", emoji: "🐝", odds: "1 in 95,000", prob: "0.00105%", cat: "Stinging Insects", text: "Densely populated wooded valleys make accidental hive encounters the primary emergency origin.", lat: 40.5, lng: -77.2 },
+            "Rhode Island": { culprit: "Blacklegged Tick", emoji: "🕷️", odds: "1 in 140,000", prob: "0.00071%", cat: "Ticks & Parasites", text: "Lacking vast wildlands, small brush regions see heavy tick-borne pathogen propagation.", lat: 41.6, lng: -71.5 },
+            "South Carolina": { culprit: "Paper Wasp", emoji: "🐝", odds: "1 in 84,000", prob: "0.00119%", cat: "Stinging Insects", text: "Humid conditions facilitate massive, multi-colony wasp nest architecture on local structures.", lat: 33.8, lng: -80.9 },
+            "South Dakota": { culprit: "Domestic Cattle", emoji: "🐄", odds: "1 in 48,000", prob: "0.00208%", cat: "Cattle/Livestock", text: "Immense open-range pasture systems expose ranch hands to unpredictable livestock trauma.", lat: 44.3, lng: -100.3 },
+            "Tennessee": { culprit: "Brown Recluse Spider", emoji: "🕷️", odds: "1 in 42,435", prob: "0.00236%", cat: "Scorpion/Spiders", text: "Their preference for dark closets and crawlspaces results in high tissue-destruction bites.", lat: 35.7, lng: -86.7 },
+            "Texas": { culprit: "Invasive Fire Ant", emoji: "🐜", odds: "1 in 52,000", prob: "0.00192%", cat: "Venomous Creepers", text: "Persistent fire ant super-colonies pose a constant hazard to hyper-allergic individuals.", lat: 31.0, lng: -100.0 },
+            "Utah": { culprit: "Whitetail / Mule Deer", emoji: "🦌", odds: "1 in 89,000", prob: "0.00112%", cat: "Deer Collisions", text: "Migration routes traversing canyon highway corridors keep vehicle-deer strikes elevated.", lat: 39.3, lng: -111.6 },
+            "Vermont": { culprit: "Blacklegged Tick", emoji: "🕷️", odds: "1 in 68,000", prob: "0.00147%", cat: "Ticks & Parasites", text: "Warming winter climates have triggered an explosion of ticks across local pastures.", lat: 44.0, lng: -72.7 },
+            "Virginia": { culprit: "Common Yellow Jacket", emoji: "🐝", odds: "1 in 105,000", prob: "0.00095%", cat: "Stinging Insects", text: "Agricultural borders pushing into sprawl create frequent ground-nest disruptions.", lat: 37.7, lng: -78.2 },
+            "Washington": { culprit: "Western Yellow Jacket", emoji: "🐝", odds: "1 in 155,000", prob: "0.00065%", cat: "Stinging Insects", text: "Absolute volume of animal medical emergencies is driven entirely by aggressive nesting wasps.", lat: 47.4, lng: -121.4 },
+            "West Virginia": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 30,271", prob: "0.00330%", cat: "Deer Collisions", text: "Canopy-covered, narrow mountainous roads generate the nation's premier collision index.", lat: 38.6, lng: -80.5 },
+            "Wisconsin": { culprit: "Whitetail Deer", emoji: "🦌", odds: "1 in 62,000", prob: "0.00161%", cat: "Deer Collisions", text: "Massive deer herds crossing high-speed rural commuter lanes easily outpace carnivore metrics.", lat: 44.2, lng: -89.6 },
+            "Wyoming": { culprit: "Grizzly Bear", emoji: "🐻", odds: "1 in 28,000", prob: "0.00357%", cat: "Apex Predators", text: "Backcountry wilderness routes create frequent, high-stakes contact with grizzly populations.", lat: 42.7, lng: -107.3 }
         };
 
-        const animalData = {
-            "Alabama": { culprit: "Domestic Cattle", odds: "1 in 145,000", prob: "0.00069%", cat: "Livestock", path: 'livestock', lat: 32.8, lng: -86.8 },
-            "Arizona": { culprit: "Arizona Bark Scorpion", odds: "1 in 68,000", prob: "0.00147%", cat: "Venomous Creepers", path: 'creeper', lat: 34.0, lng: -111.1 },
-            "Arkansas": { culprit: "Whitetail Deer", odds: "1 in 44,500", prob: "0.00225%", cat: "Deer Collisions", path: 'deer', lat: 34.9, lng: -92.4 },
-            "California": { culprit: "Southern Pacific Rattlesnake", odds: "1 in 125,000", prob: "0.00080%", cat: "Venomous Creepers", path: 'creeper', lat: 36.1, lng: -119.6 },
-            "Colorado": { culprit: "Mountain Lion", odds: "1 in 210,000", prob: "0.00048%", cat: "Apex Predators", path: 'predator', lat: 39.0, lng: -105.3 },
-            "Connecticut": { culprit: "Blacklegged Tick", odds: "1 in 75,000", prob: "0.00133%", cat: "Ticks & Parasites", path: 'parasite', lat: 41.6, lng: -72.7 },
-            "Delaware": { culprit: "Common Yellow Jacket", odds: "1 in 180,000", prob: "0.00056%", cat: "Stinging Insects", path: 'insect', lat: 39.3, lng: -75.5 },
-            "Florida": { culprit: "American Alligator", odds: "1 in 83,000", prob: "0.00120%", cat: "Apex Predators", path: 'predator', lat: 27.7, lng: -81.6 },
-            "Georgia": { culprit: "Southern Copperhead", odds: "1 in 62,000", prob: "0.00161%", cat: "Venomous Creepers", path: 'creeper', lat: 33.0, lng: -83.6 },
-            "Idaho": { culprit: "Domestic Cattle", odds: "1 in 88,000", prob: "0.00114%", cat: "Livestock", path: 'livestock', lat: 44.2, lng: -114.4 },
-            "Illinois": { culprit: "Whitetail Deer", odds: "1 in 115,000", prob: "0.00087%", cat: "Deer Collisions", path: 'deer', lat: 40.3, lng: -89.0 },
-            "Indiana": { culprit: "Whitetail Deer", odds: "1 in 98,000", prob: "0.00102%", cat: "Deer Collisions", path: 'deer', lat: 39.8, lng: -86.2 },
-            "Iowa": { culprit: "Domestic Cattle", odds: "1 in 64,000", prob: "0.00156%", cat: "Livestock", path: 'livestock', lat: 42.0, lng: -93.3 },
-            "Kansas": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", cat: "Livestock", path: 'livestock', lat: 38.5, lng: -98.0 },
-            "Kentucky": { culprit: "Thoroughbred Horse", odds: "1 in 72,000", prob: "0.00139%", cat: "Livestock", path: 'livestock', lat: 37.6, lng: -84.6 },
-            "Louisiana": { culprit: "Invasive Fire Ant", odds: "1 in 95,000", prob: "0.00105%", cat: "Venomous Creepers", path: 'creeper', lat: 31.1, lng: -91.8 },
-            "Maine": { culprit: "American Moose", odds: "1 in 48,000", prob: "0.00208%", cat: "Large Wild Mammals", path: 'deer', lat: 45.2, lng: -69.2 },
-            "Maryland": { culprit: "Common Honeybee", odds: "1 in 140,000", prob: "0.00071%", cat: "Stinging Insects", path: 'insect', lat: 39.0, lng: -76.8 },
-            "Massachusetts": { culprit: "Common Paper Wasp", odds: "1 in 8,185,535", prob: "0.00001%", cat: "Stinging Insects", path: 'insect', lat: 42.2, lng: -71.8 },
-            "Michigan": { culprit: "Whitetail Deer", odds: "1 in 85,000", prob: "0.00118%", cat: "Deer Collisions", path: 'deer', lat: 43.3, lng: -84.5 },
-            "Minnesota": { culprit: "Whitetail Deer", odds: "1 in 74,000", prob: "0.00135%", cat: "Deer Collisions", path: 'deer', lat: 45.7, lng: -93.9 },
-            "Mississippi": { culprit: "Pit Vipers", odds: "1 in 59,500", prob: "0.00168%", cat: "Venomous Creepers", path: 'creeper', lat: 32.7, lng: -89.6 },
-            "Missouri": { culprit: "Domestic Cattle", odds: "1 in 82,000", prob: "0.00122%", cat: "Livestock", path: 'livestock', lat: 38.4, lng: -92.2 },
-            "Montana": { culprit: "Grizzly Bear", odds: "1 in 21,000", prob: "0.00476%", cat: "Apex Predators", path: 'predator', lat: 46.9, lng: -110.4 },
-            "Nebraska": { culprit: "Domestic Cattle", odds: "1 in 58,000", prob: "0.00172%", cat: "Livestock", path: 'livestock', lat: 41.1, lng: -98.2 },
-            "Nevada": { culprit: "Deer Mouse (Hantavirus)", odds: "1 in 165,000", prob: "0.00061%", cat: "Ticks & Parasites", path: 'parasite', lat: 38.8, lng: -117.1 },
-            "New Hampshire": { culprit: "Whitetail Deer", odds: "1 in 130,000", prob: "0.00077%", cat: "Deer Collisions", path: 'deer', lat: 43.4, lng: -71.5 },
-            "New Jersey": { culprit: "Eastern Yellow Jacket", odds: "1 in 195,000", prob: "0.00051%", cat: "Stinging Insects", path: 'insect', lat: 40.3, lng: -74.5 },
-            "New Mexico": { culprit: "Large Free-Ranging Mammals", odds: "1 in 41,000", prob: "0.00244%", cat: "Large Wild Mammals", path: 'livestock', lat: 34.8, lng: -106.2 },
-            "New York": { culprit: "Common Hornet", odds: "1 in 240,000", prob: "0.00042%", cat: "Stinging Insects", path: 'insect', lat: 42.1, lng: -74.9 },
-            "North Carolina": { culprit: "Invasive Fire Ant", odds: "1 in 78,000", prob: "0.00128%", cat: "Venomous Creepers", path: 'creeper', lat: 35.6, lng: -79.8 },
-            "North Dakota": { culprit: "American Bison", odds: "1 in 92,000", prob: "0.00109%", cat: "Large Wild Mammals", path: 'livestock', lat: 47.5, lng: -99.7 },
-            "Ohio": { culprit: "Common Yellow Jacket", odds: "1 in 110,000", prob: "0.00091%", cat: "Stinging Insects", path: 'insect', lat: 40.4, lng: -82.9 },
-            "Oklahoma": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", cat: "Livestock", path: 'livestock', lat: 35.5, lng: -96.9 },
-            "Oregon": { culprit: "Yellow Jackets & Wasps", odds: "1 in 120,000", prob: "0.00083%", cat: "Stinging Insects", path: 'insect', lat: 44.5, lng: -122.1 },
-            "Pennsylvania": { culprit: "Common Honeybee", odds: "1 in 95,000", prob: "0.00105%", cat: "Stinging Insects", path: 'insect', lat: 40.5, lng: -77.2 },
-            "Rhode Island": { culprit: "Blacklegged Tick", odds: "1 in 140,000", prob: "0.00071%", cat: "Ticks & Parasites", path: 'parasite', lat: 41.6, lng: -71.5 },
-            "South Carolina": { culprit: "Paper Wasp", odds: "1 in 84,000", prob: "0.00119%", cat: "Stinging Insects", path: 'insect', lat: 33.8, lng: -80.9 },
-            "South Dakota": { culprit: "Domestic Cattle", odds: "1 in 48,000", prob: "0.00208%", cat: "Livestock", path: 'livestock', lat: 44.3, lng: -100.3 },
-            "Tennessee": { culprit: "Brown Recluse Spider", odds: "1 in 42,435", prob: "0.00236%", cat: "Venomous Creepers", path: 'creeper', lat: 35.7, lng: -86.7 },
-            "Texas": { culprit: "Invasive Fire Ant", odds: "1 in 52,000", prob: "0.00192%", cat: "Venomous Creepers", path: 'creeper', lat: 31.0, lng: -100.0 },
-            "Utah": { culprit: "Whitetail & Mule Deer", odds: "1 in 89,000", prob: "0.00112%", cat: "Deer Collisions", path: 'deer', lat: 39.3, lng: -111.6 },
-            "Vermont": { culprit: "Blacklegged Tick", odds: "1 in 68,000", prob: "0.00147%", cat: "Ticks & Parasites", path: 'parasite', lat: 44.0, lng: -72.7 },
-            "Virginia": { culprit: "Common Yellow Jacket", odds: "1 in 105,000", prob: "0.00095%", cat: "Stinging Insects", path: 'insect', lat: 37.7, lng: -78.2 },
-            "Washington": { culprit: "Western Yellow Jacket", odds: "1 in 155,000", prob: "0.00065%", cat: "Stinging Insects", path: 'insect', lat: 47.4, lng: -121.4 },
-            "West Virginia": { culprit: "Whitetail Deer", odds: "1 in 30,271", prob: "0.00330%", cat: "Deer Collisions", path: 'deer', lat: 38.6, lng: -80.5 },
-            "Wisconsin": { culprit: "Whitetail Deer", odds: "1 in 62,000", prob: "0.00161%", cat: "Deer Collisions", path: 'deer', lat: 44.2, lng: -89.6 },
-            "Wyoming": { culprit: "Grizzly Bear", odds: "1 in 28,000", prob: "0.00357%", cat: "Apex Predators", path: 'predator', lat: 42.7, lng: -107.3 }
-        };
-
-        // Render Clean Geographic Polygons
-        function style(feature) {
-            const stateName = feature.properties.name;
-            const data = animalData[stateName];
+        // Geographic Style Mapping
+        function stylePolygon(feature) {
+            const state = stateWildlifeData[feature.properties.name];
             return {
-                fillColor: data ? stateColors[data.category || data.cat] : '#fcfbf7',
+                fillColor: state ? categoryColors[state.cat] : '#fcfbf7',
                 weight: 1.5,
                 opacity: 1,
-                color: '#fcfbf7', // Inset off-white border separator lines matching your asset
-                fillOpacity: 1
+                color: '#fcfbf7', // Crisp clean vector separation lines
+                fillOpacity: 0.9
             };
         }
 
-        // Standard Interface Control Logic
-        const info = L.control();
-        info.onAdd = function (map) {
+        // Dashboard Overlay Setup
+        const infoWindow = L.control();
+        infoWindow.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info');
             this.update();
             return this._div;
         };
-        info.update = function (props) {
-            this._div.innerHTML = '<h4>State Encounter Data</h4>' + (props && animalData[props.name] ?
-                '<b>' + props.name + '</b><br />' +
-                '🎯 Top Hazard: <strong>' + animalData[props.name].culprit + '</strong><br />' +
-                '📊 Annual Odds: ' + animalData[props.name].odds
-                : 'Hover over an active state layer');
+        infoWindow.update = function (props) {
+            if (props && stateWildlifeData[props.name]) {
+                const s = stateWildlifeData[props.name];
+                this._div.innerHTML = `<h4>${props.name} Assessment</h4>
+                    <p>🎯 <b>Top Culprit:</b> ${s.culprit} ${s.emoji}</p>
+                    <p>📊 <b>Annual Encounter Odds:</b> ${s.odds}</p>
+                    <p>📈 <b>Implied Probability:</b> ${s.prob}</p>
+                    <p style="font-size:11px; color:#555; border-top:1px solid #ddd; padding-top:4px;">${s.text}</p>`;
+            } else {
+                this._div.innerHTML = '<h4>State Data Hub</h4>Hover over a state polygon';
+            }
         };
-        info.addTo(map);
+        infoWindow.addTo(map);
 
-        function highlightFeature(e) {
+        function highlightState(e) {
             const layer = e.target;
-            layer.setStyle({ weight: 2.5, color: '#2c2520' });
-            if (animalData[layer.feature.properties.name]) {
-                info.update(layer.feature.properties);
+            layer.setStyle({ weight: 2.5, color: '#222' });
+            if (stateWildlifeData[layer.feature.properties.name]) {
+                infoWindow.update(layer.feature.properties);
             }
         }
 
-        let geojson;
-        function resetHighlight(e) {
-            geojson.resetStyle(e.target);
-            info.update();
+        let geojsonLayer;
+        function resetState(e) {
+            geojsonLayer.resetStyle(e.target);
+            infoWindow.update();
         }
 
-        function onEachFeature(feature, layer) {
+        function wireFeatures(feature, layer) {
             layer.on({
-                mouseover: highlightFeature,
-                mouseout: resetHighlight
+                mouseover: highlightState,
+                mouseout: resetState
             });
         }
 
-        // Fetch Borders and Deploy Graphic Layer Markers Natively
+        // Stream geographic boundary coordinates and overlay data blocks
         fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json')
-            .then(response => response.json())
-            .then(data => {
-                geojson = L.geoJson(data, {
-                    style: style,
-                    onEachFeature: onEachFeature
+            .then(res => res.json())
+            .then(geoData => {
+                geojsonLayer = L.geoJson(geoData, {
+                    style: stylePolygon,
+                    onEachFeature: wireFeatures
                 }).addTo(map);
 
-                // Iterate through our coordinated matrix and anchor graphic indicators directly over matching states
-                Object.keys(animalData).forEach(state => {
-                    const item = animalData[state];
-                    if (svgPaths[item.path]) {
-                        const icon = L.divIcon({
-                            html: svgPaths[item.path],
-                            className: 'state-icon-svg',
-                            iconSize: [26, 26],
-                            iconAnchor: [13, 13]
-                        });
-                        L.marker([item.lat, item.lng], { icon: icon, interactive: false }).addTo(map);
-                    }
+                // Populate every individual state with its matching asset icon text combo
+                Object.keys(stateWildlifeData).forEach(stateName => {
+                    const d = stateWildlifeData[stateName];
+                    const customLabel = L.divIcon({
+                        html: `<div class="state-label-container">
+                                <span class="state-icon-emoji">${d.emoji}</span>
+                               <span class="state-text-label">${stateName.substring(0,3)}</span>
+                               </div>`,
+                        className: 'custom-div-icon',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 20]
+                    });
+                    L.marker([d.lat, d.lng], { icon: customLabel, interactive: false }).addTo(map);
                 });
             });
 
-        // Generate Bottom Right Map Key
-        const legend = L.control({position: 'bottomright'});
-        legend.onAdd = function (map) {
+        // Generate Color Legend Matrix
+        const legendKey = L.control({position: 'bottomright'});
+        legendKey.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'legend');
-            div.innerHTML += '<strong>Key Categories</strong><br>';
-            Object.keys(stateColors).forEach(cat => {
-                div.innerHTML += `<i style="background:${stateColors[cat]}"></i> ${cat}<br>`;
+            div.innerHTML += '<strong>Risk Matrix</strong><br>';
+            Object.keys(categoryColors).forEach(key => {
+                div.innerHTML += `<i style="background:${categoryColors[key]}"></i> ${key}<br>`;
             });
             return div;
         };
-        legend.addTo(map);
+        legendKey.addTo(map);
     </script>
 </body>
 </html>
