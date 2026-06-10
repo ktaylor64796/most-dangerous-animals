@@ -151,7 +151,7 @@
     <script>
         // Set coordinates to center beautifully to showcase both nations cleanly
         const map = L.map('map', {
-            center: [48.0, -97.0],
+            center: [46.0, -97.0],
             zoom: 4,
             zoomControl: false,
             dragging: true,
@@ -226,7 +226,7 @@
             "New Mexico": { culprit: "Large Free-Ranging Mammals", odds: "1 in 41,000", prob: "0.00244%", cat: "Large Wild Mammals", icon: 'cow', size: 34, lat: 34.8, lng: -106.2, text: "Severe cyclical droughts drag range cattle and heavy wild elk lines down onto black unlit highway channels seeking roadside moisture." },
             "New York": { culprit: "Common Hornet", odds: "1 in 240,000", prob: "0.00042%", cat: "Stinging Insects", icon: 'insect', size: 30, lat: 42.1, lng: -74.9, text: "Upstate mountain timbers mixing with extensive suburban parks position swarming yellow jackets as the dominant systemic allergy threat." },
             "North Carolina": { culprit: "Invasive Fire Ant", odds: "1 in 78,000", prob: "0.00128%", cat: "Venomous Creepers", icon: 'insect', size: 30, lat: 35.6, lng: -79.8, text: "Rapid fire ant range expansion through the Piedmont zone catches hyper-allergic individuals off guard during routine lawn maintenance." },
-            "North Dakota": { culprit: "Whitetail Deer", odds: "1 in 82,000", prob: "0.00122%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 47.5, lng: -99.7, text: "FIXED AND BULLETPROOF BLOCK: Lacking historical wild predator fatalities, North Dakota's highest hazard stems from vehicle-deer interactions." },
+            "North Dakota": { culprit: "Whitetail Deer", odds: "1 in 82,000", prob: "0.00122%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 47.5, lng: -99.7, text: "BULLETPROOF BLOCK: Lacking historical wild predator fatalities, North Dakota's highest hazard stems from vehicle-deer interactions." },
             "Ohio": { culprit: "Common Yellow Jacket", odds: "1 in 110,000", prob: "0.00091%", cat: "Stinging Insects", icon: 'insect', size: 28, lat: 40.4, lng: -82.9, text: "Densely configured suburban footprints keep colonial hymenoptera locked as the primary driver of critical care animal logs." },
             "Oklahoma": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 35.5, lng: -96.9, text: "Extreme weather cells regularly splinter fence enclosures, launching 1,400-pound livestock assets straight onto dark rural transit arteries." },
             "Oregon": { culprit: "Yellow Jacket / Wasp", odds: "1 in 120,000", prob: "0.00083%", cat: "Stinging Insects", icon: 'insect', size: 32, lat: 44.5, lng: -122.1, text: "Industrial logging operations across mountain timberlines bring high occupational risk for multi-sting colony swarms." },
@@ -247,7 +247,7 @@
 
         // Render Clean Geographic Polygons
         function styleRegionPolygons(feature) {
-            // Support database matching using alternative property naming hooks in standard maps
+            // Unbreakable lookup using both standard US and Canadian property names
             const name = feature.properties.name || feature.properties.NAME;
             const data = regionWildlifeData[name];
             return {
@@ -303,28 +303,28 @@
             });
         }
 
-        // Load authoritative, unbreakable combined US + Canada geographic boundaries
-        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/USA.geo.json')
+        // Load authoritative U.S. State Boundaries (Individual polygons instead of single country frame)
+        fetch('https://raw.githubusercontent.com/datasets/geo-boundaries-us-115/master/data/us-states.geojson')
             .then(res => res.json())
             .then(usData => {
-                // Render US Polygons
+                // Render US Polygons smoothly
                 topoJsonLayer = L.geoJson(usData, {
                     style: styleRegionPolygons,
                     onEachFeature: onEachFeature
                 }).addTo(map);
 
-                // Fetch and overlay Canadian provincial shapes
+                // Fetch and overlay Canadian provincial shapes right alongside them
                 return fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/canada.geojson');
             })
             .then(res => res.json())
             .then(caData => {
-                // Render Canadian Polygons to unified layer
+                // Render Canadian Polygons to the same map frame
                 L.geoJson(caData, {
                     style: styleRegionPolygons,
                     onEachFeature: onEachFeature
                 }).addTo(map);
 
-                // Build Silhouette Icon Layers on top of rendering geometries
+                // Build Silhouette Icon Layers cleanly over coordinated centroids
                 Object.keys(regionWildlifeData).forEach(regionName => {
                     const meta = regionWildlifeData[regionName];
                     if (svgIcons[meta.icon]) {
@@ -346,7 +346,7 @@
                 });
             });
 
-        // Initialize Legend Key Board
+        // Initialize Legend Key Board Layout
         const mapLegend = L.control({position: 'bottomright'});
         mapLegend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'legend');
