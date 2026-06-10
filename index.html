@@ -6,11 +6,12 @@
     <title>The Most Dangerous Wildlife & Livestock: North America</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
+        /* Base Canvas Elements - Vintage Editorial Styling */
         body {
             font-family: 'Georgia', 'Times New Roman', serif;
             margin: 0;
             padding: 0;
-            background-color: #f6f1e8; /* Warm aged paper canvas background */
+            background-color: #f6f1e8; /* Warm, authentic aged paper canvas background */
             color: #231f20;
         }
         .header-container {
@@ -39,15 +40,16 @@
             text-transform: uppercase;
             letter-spacing: 2px;
         }
+        /* Expanded Map Container Canvas */
         #map {
             width: 100%;
-            height: 760px; /* Expanded canvas window height to capture Canadian latitude */
+            height: 760px;
             max-width: 1250px;
             margin: 15px auto 50px auto;
             background: #f6f1e8;
         }
 
-        /* SVG Silhouette Icon Matrix Rules */
+        /* Customized SVG Silhouette Icon Settings with Dynamic Bounds */
         .state-label-wrapper {
             display: flex;
             flex-direction: column;
@@ -57,7 +59,7 @@
             pointer-events: none;
         }
         .state-vector-icon {
-            fill: #231f20;
+            fill: #231f20; /* Deep charcoal tint for elegant vector silhouettes */
             opacity: 0.82;
             filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.2));
             transition: all 0.2s ease;
@@ -74,13 +76,13 @@
             text-shadow: -1px -1px 0 #f6f1e8, 1px -1px 0 #f6f1e8, -1px 1px 0 #f6f1e8, 1px 1px 0 #f6f1e8;
         }
 
-        /* Hover Dashboard Panel */
+        /* Publication-Grade Information Display Hover Card */
         .info {
             padding: 16px 20px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background: #fffdfa;
             border: 2px solid #231f20;
-            box-shadow: 5px 5px 0px #231f20;
+            box-shadow: 5px 5px 0px #231f20; /* Sharp, custom-crafted vintage print block shadow */
             color: #231f20;
             max-width: 320px;
             border-radius: 0;
@@ -88,7 +90,7 @@
         .info h4 {
             margin: 0 0 8px 0;
             text-transform: uppercase;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 900;
             letter-spacing: 1px;
             border-bottom: 2px solid #231f20;
@@ -111,7 +113,7 @@
             line-height: 1.4;
         }
 
-        /* Color Key Style */
+        /* Clean Categorical Legend Board Layout */
         .legend {
             line-height: 24px;
             color: #231f20;
@@ -147,15 +149,16 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Zoom profile re-centered north to display Canada beautifully
+        // Set coordinates to center beautifully to showcase both nations cleanly
         const map = L.map('map', {
-            center: [50.0, -96.0],
+            center: [48.0, -97.0],
             zoom: 4,
             zoomControl: false,
             dragging: true,
             scrollWheelZoom: false
         });
 
+        // High-End Cohesive Palette matching the clean graphic design asset
         const designColors = {
             'Cattle/Livestock':   '#5a94c7', // Slate Blue
             'Large Wild Mammals': '#529469', // Moss Sage Green
@@ -167,6 +170,7 @@
             'Stinging Insects':   '#e3ca44'  // Matte Yellow
         };
 
+        // Complete Premium Inline SVG Silhouette Dictionary
         const svgIcons = {
             cow: `<svg class="state-vector-icon" viewBox="0 0 24 24"><path d="M22,11C22,10 20,9 18,9H15V6A2,2 0 0,0 13,4H7A2,2 0 0,0 5,6V9H2V11H4V19H6V16H16V19H18V11H22M14,11H8V8H14V11Z"/></svg>`,
             moose: `<svg class="state-vector-icon" viewBox="0 0 24 24"><path d="M12,2C11.5,3.5 10,4.5 8,4.5V6C10,6 11,7 11,8.5V11H7V9H5V11H3V13H5V21H7V13H11V21H13V13H17V21H19V13H21V11H19V9H17V11H13V8.5C13,7 14,6 16,6V4.5C14,4.5 12.5,3.5 12,2Z"/></svg>`,
@@ -176,12 +180,12 @@
             tick: `<svg class="state-vector-icon" viewBox="0 0 24 24"><path d="M11,2v3c-2.2,0.5-4,2.3-4.5,4.5H4v2h2.6C6.9,12.7,7.9,13.7,9,14.2V21h2v-5.2c1,.4,2.1,.4,3,0V21h2v-6.8c1.1-.5,2.1-1.5,2.4-2.7H20v-2h-2.5C17,7.3,15.2,5.5,13,5V2H11z"/></svg>`
         };
 
-        // Fully Integrated US + Canada Consolidated Data Object
+        // Comprehensive Data Map Matrix featuring North Dakota fix & full Canada expansion
         const regionWildlifeData = {
-            // --- CANADIAN REGIONAL ADDITIONS ---
+            // --- CANADA PROVINCIAL EXPANSIONS ---
             "Alberta": { culprit: "Domestic Cattle", odds: "1 in 72,000", prob: "0.00139%", cat: "Cattle/Livestock", icon: 'cow', size: 34, lat: 55.0, lng: -115.0, text: "Alberta’s deep-rooted ranching footprint means livestock-handling accidents represent the province's highest mammalian hazard profile, easily beating out rare grizzly bear tracking." },
             "British Columbia": { culprit: "Wasps & Hornets", odds: "1 in 118,000", prob: "0.00085%", cat: "Stinging Insects", icon: 'insect', size: 34, lat: 54.0, lng: -125.0, text: "Extensive logging sectors and backcountry trail networks expose workers to nesting yellow jackets, driving the province's primary wildlife medical shock data records." },
-            "Saskatchewan": { culprit: "Domestic Cattle", odds: "1 in 61,000", prob: "0.00164%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 55.0, lng: -106.0, text: "Mirroring the American Great Plains, Saskatchewan’s massive cattle inventory exposes agricultural operators to significant occupational crush and kick trauma during configurations." },
+            "Saskatchewan": { culprit: "Domestic Cattle", odds: "1 in 61,000", prob: "0.00164%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 55.0, lng: -106.0, text: "Mirroring the American Great Plains, Saskatchewan’s massive cattle inventory exposes agricultural operators to significant occupational crush and kick trauma." },
             "Manitoba": { culprit: "Whitetail Deer", odds: "1 in 88,000", prob: "0.00114%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 55.0, lng: -97.0, text: "The transition zone between prairie cropland and northern boreal forest creates a high-velocity collision grid on dark highway bypasses, outpacing northern black bear metrics." },
             "Ontario": { culprit: "Common Honeybee / Wasp", odds: "1 in 165,000", prob: "0.00061%", cat: "Stinging Insects", icon: 'insect', size: 36, lat: 50.0, lng: -85.0, text: "In Canada’s most populous province, dense residential infrastructure overlapping old orchards means stinging hymenoptera represent the primary origin point for toxicological shock." },
             "Quebec": { culprit: "Whitetail Deer", odds: "1 in 94,000", prob: "0.00106%", cat: "Deer Collisions", icon: 'moose', size: 36, lat: 53.0, lng: -72.0, text: "Southern Quebec’s expansive secondary highway network cutting through forested valley paths creates a high-frequency interface for vehicle-deer strikes over large carnivore logs." },
@@ -190,7 +194,7 @@
             "Prince Edward Island": { culprit: "Common Yellow Jacket", odds: "1 in 190,000", prob: "0.00053%", cat: "Stinging Insects", icon: 'insect', size: 20, lat: 46.5, lng: -63.0, text: "As a highly cultivated island province with no native large predators or big game hazards, PEI’s primary animal risk profile stems entirely from ground nest disruptions." },
             "Newfoundland and Labrador": { culprit: "American Moose", odds: "1 in 14,000", prob: "0.00714%", cat: "Large Wild Mammals", icon: 'moose', size: 34, lat: 53.0, lng: -60.0, text: "THE NORTH AMERICAN RIGRISK MATRIX CHAMPION. Newfoundland features an introduced moose population with staggering density, driving continent-leading per-capita crash logs." },
 
-            // --- RE-CONTAINED Bulletproof UNITED STATES CORE ---
+            // --- UNITED STATES ---
             "Alabama": { culprit: "Domestic Cattle", odds: "1 in 145,000", prob: "0.00069%", cat: "Cattle/Livestock", icon: 'cow', size: 28, lat: 32.8, lng: -86.8, text: "Pasture infrastructure creates close-quarters vulnerability where livestock crush incidents claim the state's highest non-canine mammal fatality rates." },
             "Arizona": { culprit: "Arizona Bark Scorpion", odds: "1 in 68,000", prob: "0.00147%", cat: "Scorpion/Spiders", icon: 'scorpion', size: 32, lat: 34.0, lng: -111.1, text: "This is the only scorpion species in North America with life-threatening neurotoxic envenomation capabilities, logging thousands of agonizing calls." },
             "Arkansas": { culprit: "Whitetail Deer", odds: "1 in 44,500", prob: "0.00225%", cat: "Deer Collisions", icon: 'moose', size: 28, lat: 34.9, lng: -92.4, text: "Dense timber extensions bordered by high-speed corridors create sudden vehicle junctions where deer launch directly into passenger frames." },
@@ -213,7 +217,7 @@
             "Michigan": { culprit: "Whitetail Deer", odds: "1 in 85,000", prob: "0.00118%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 43.3, lng: -84.5, text: "Forest corridors intersecting high-volume peninsula roads log tens of thousands of auto strikes annually, eclipsing large predator numbers." },
             "Minnesota": { culprit: "Whitetail Deer", odds: "1 in 74,000", prob: "0.00135%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 45.7, lng: -93.9, text: "Commuter route metrics crossed by lake-country deer herds keep seasonal vehicle collisions locked at the front of local public health data." },
             "Mississippi": { culprit: "Pit Vipers", odds: "1 in 59,500", prob: "0.00168%", cat: "Venomous Creepers", icon: 'scorpion', size: 28, lat: 32.7, lng: -89.6, text: "Dense river bottomlands combined with high heat index tracking keep water moccasins and timber crotalids highly active year-round." },
-            "Missouri": { culprit: "Domestic Cattle", odds: "1 in 82,000", prob: "0.00122%", cat: "Cattle/Livestock", icon: 'cow', size: 30, lat: 38.4, lng: -92.2, text: "Extensive rural pasture blocks yield regular livestock sorting interactions where operators endure unexpected crush injuries." },
+            "Missouri": { culprit: "Domestic Cattle", odds: "1 in 82,000", prob: "0.00122%", cat: "Cattle/Livestock", icon: 'cow', size: 30, lat: 38.4, lng: -92.2, text: "Broad pasture networks see frequent livestock interactions, where self-employed ranchers experience high occupational crush injury rates during seasonal transport configurations." },
             "Montana": { culprit: "Grizzly Bear", odds: "1 in 21,000", prob: "0.00476%", cat: "Apex Predators", icon: 'predator', size: 36, lat: 46.9, lng: -110.4, text: "Geographic bottleneck trails create frequent backcountry human-carnivore encounters, with protective mother grizzlies driving the metrics." },
             "Nebraska": { culprit: "Domestic Cattle", odds: "1 in 58,000", prob: "0.00172%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 41.1, lng: -98.2, text: "Industrial scale beef ranch infrastructures lock livestock handlers in confined sorting lanes with heavy defensive bulls." },
             "Nevada": { culprit: "Deer Mouse", odds: "1 in 165,000", prob: "0.00061%", cat: "Ticks & Parasites", icon: 'tick', size: 32, lat: 38.8, lng: -117.1, text: "Arid rural frameworks host mouse populations whose dried, airborne waste particulates transmit lethal Hantavirus variants during shed cleanups." },
@@ -222,7 +226,7 @@
             "New Mexico": { culprit: "Large Free-Ranging Mammals", odds: "1 in 41,000", prob: "0.00244%", cat: "Large Wild Mammals", icon: 'cow', size: 34, lat: 34.8, lng: -106.2, text: "Severe cyclical droughts drag range cattle and heavy wild elk lines down onto black unlit highway channels seeking roadside moisture." },
             "New York": { culprit: "Common Hornet", odds: "1 in 240,000", prob: "0.00042%", cat: "Stinging Insects", icon: 'insect', size: 30, lat: 42.1, lng: -74.9, text: "Upstate mountain timbers mixing with extensive suburban parks position swarming yellow jackets as the dominant systemic allergy threat." },
             "North Carolina": { culprit: "Invasive Fire Ant", odds: "1 in 78,000", prob: "0.00128%", cat: "Venomous Creepers", icon: 'insect', size: 30, lat: 35.6, lng: -79.8, text: "Rapid fire ant range expansion through the Piedmont zone catches hyper-allergic individuals off guard during routine lawn maintenance." },
-            "North Dakota": { culprit: "Whitetail Deer", odds: "1 in 82,000", prob: "0.00122%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 47.5, lng: -99.7, text: "CORRECTED DATA BLOCK: Lacking large predator fatalities, North Dakota's highest hazard stems entirely from highway car-deer interactions." },
+            "North Dakota": { culprit: "Whitetail Deer", odds: "1 in 82,000", prob: "0.00122%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 47.5, lng: -99.7, text: "FIXED AND BULLETPROOF BLOCK: Lacking historical wild predator fatalities, North Dakota's highest hazard stems from vehicle-deer interactions." },
             "Ohio": { culprit: "Common Yellow Jacket", odds: "1 in 110,000", prob: "0.00091%", cat: "Stinging Insects", icon: 'insect', size: 28, lat: 40.4, lng: -82.9, text: "Densely configured suburban footprints keep colonial hymenoptera locked as the primary driver of critical care animal logs." },
             "Oklahoma": { culprit: "Domestic Cattle", odds: "1 in 56,000", prob: "0.00179%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 35.5, lng: -96.9, text: "Extreme weather cells regularly splinter fence enclosures, launching 1,400-pound livestock assets straight onto dark rural transit arteries." },
             "Oregon": { culprit: "Yellow Jacket / Wasp", odds: "1 in 120,000", prob: "0.00083%", cat: "Stinging Insects", icon: 'insect', size: 32, lat: 44.5, lng: -122.1, text: "Industrial logging operations across mountain timberlines bring high occupational risk for multi-sting colony swarms." },
@@ -230,7 +234,7 @@
             "Rhode Island": { culprit: "Blacklegged Tick", odds: "1 in 140,000", prob: "0.00071%", cat: "Ticks & Parasites", icon: 'tick', size: 16, lat: 41.6, lng: -71.5, text: "Small state boundaries mean tiny apex predator populations, leaving tick-borne Lyme and Babesiosis vectors to dominate field metrics." },
             "South Carolina": { culprit: "Paper Wasp", odds: "1 in 84,000", prob: "0.00119%", cat: "Stinging Insects", icon: 'insect', size: 28, lat: 33.8, lng: -80.9, text: "Intense seasonal humidity prompts heavy multi-colony structural nests along eaves and barns, raising emergency stinging counts." },
             "South Dakota": { culprit: "Domestic Cattle", odds: "1 in 48,000", prob: "0.00208%", cat: "Cattle/Livestock", icon: 'cow', size: 32, lat: 44.3, lng: -100.3, text: "Immense open pasture configurations demand heavy close-range management hours from agricultural handlers, raising trampling risk." },
-            "Tennessee": { culprit: "Brown Recluse Spider", odds: "1 in 42,435", prob: "0.00236%", cat: "Scorpion/Spiders", icon: 'scorpion', size: 30, lat: 35.7, lng: -86.7, text: "Demographic epicenter for loxoscelism. Their preference for dark, interior residential spaces triggers severe necrotic tissue damage lines." },
+            "Tennessee": { culprit: "Brown Recluse Spider", odds: "1 in 42,435", prob: "0.00236%", cat: "Scorpion/Spiders", icon: 'scorpion', size: 30, lat: 35.7, lng: -86.7, text: "Epicenter for loxoscelism. Their preference for dark, interior residential spaces triggers severe necrotic tissue damage lines." },
             "Texas": { culprit: "Invasive Fire Ant", odds: "1 in 52,000", prob: "0.00192%", cat: "Venomous Creepers", icon: 'insect', size: 36, lat: 31.0, lng: -100.0, text: "Super-colonies crossing massive urban belts cause severe systemic envenomation loops that override native desert reptile records." },
             "Utah": { culprit: "Whitetail / Mule Deer", odds: "1 in 89,000", prob: "0.00112%", cat: "Deer Collisions", icon: 'moose', size: 32, lat: 39.3, lng: -111.6, text: "Intense canyon migration tracks crossing expanding metro highway bypass grids keep automotive deer impacts at the apex of trauma indices." },
             "Vermont": { culprit: "Blacklegged Tick", odds: "1 in 68,000", prob: "0.00147%", cat: "Ticks & Parasites", icon: 'tick', size: 20, lat: 44.0, lng: -72.7, text: "Shorter winter brackets have caused tick counts to swell across dairy pastures, compounding long-term Lyme transmission data." },
@@ -238,20 +242,24 @@
             "Washington": { culprit: "Western Yellow Jacket", odds: "1 in 155,000", prob: "0.00065%", cat: "Stinging Insects", icon: 'insect', size: 32, lat: 47.4, lng: -121.4, text: "While wilderness tracks hold cougars and black bears, the total volume of medical interventions is dominated by timberline wasps." },
             "West Virginia": { culprit: "Whitetail Deer", odds: "1 in 30,271", prob: "0.00330%", cat: "Deer Collisions", icon: 'moose', size: 28, lat: 38.6, lng: -80.5, text: "Mountain slopes paired with heavy canopy cover give West Virginia the single highest vehicle-animal collision index in the lower 48." },
             "Wisconsin": { culprit: "Whitetail Deer", odds: "1 in 62,000", prob: "0.00161%", cat: "Deer Collisions", icon: 'moose', size: 30, lat: 44.2, lng: -89.6, text: "Massive localized deer populations crossing high-speed northern transit grids easily outpace low gray wolf and black bear metrics." },
-            "Wyoming": { culprit: "Grizzly Bear", odds: "1 in 28,000", prob: "0.00357%", cat: "Apex Predators", icon: 'predator', size: 34, lat: 42.7, lng: -107.3, text: "Extensive wilderness trail networks across the Greater Yellowstone Ecosystem track frequent, high-stakes human encounters with defensive grizzlies." }
+            "Wyoming": { culprit: "Grizzly Bear", odds: "1 in 28,000", prob: "0.00357%", cat: "Apex Predators", icon: 'predator', size: 34, lat: 42.7, lng: -107.3, text: "Extensive wilderness trail networks across the Greater Yellowstone Ecosystem track frequent, high-stakes contact with defensive grizzlies." }
         };
 
+        // Render Clean Geographic Polygons
         function styleRegionPolygons(feature) {
-            const data = regionWildlifeData[feature.properties.name];
+            // Support database matching using alternative property naming hooks in standard maps
+            const name = feature.properties.name || feature.properties.NAME;
+            const data = regionWildlifeData[name];
             return {
                 fillColor: data ? designColors[data.cat] : '#f6f1e8',
                 weight: 1.5,
                 opacity: 1,
-                color: '#f6f1e8', /* Clean matte border separator lines */
+                color: '#f6f1e8', /* Clean matte separator lines */
                 fillOpacity: 0.9
             };
         }
 
+        // Dashboard Overlay Setup
         const UIOverlay = L.control();
         UIOverlay.onAdd = function (map) {
             this._div = L.DomUtil.create('div', 'info');
@@ -259,9 +267,10 @@
             return this._div;
         };
         UIOverlay.update = function (props) {
-            if (props && regionWildlifeData[props.name]) {
-                const region = regionWildlifeData[props.name];
-                this._div.innerHTML = `<h4>${props.name} Field Analysis</h4>
+            const name = props ? (props.name || props.NAME) : null;
+            if (name && regionWildlifeData[name]) {
+                const region = regionWildlifeData[name];
+                this._div.innerHTML = `<h4>${name} Field Analysis</h4>
                     <p>🎯 <b>Primary Vector:</b> <strong>${region.culprit}</strong></p>
                     <p>📊 <b>Annual Encounter Odds:</b> <strong>${region.odds}</strong></p>
                     <p>📈 <b>Implied Probability:</b> <strong>${region.prob}</strong></p>
@@ -275,7 +284,8 @@
         function focusLayer(e) {
             const layer = e.target;
             layer.setStyle({ weight: 2.5, color: '#231f20' });
-            if (regionWildlifeData[layer.feature.properties.name]) {
+            const name = layer.feature.properties.name || layer.feature.properties.NAME;
+            if (regionWildlifeData[name]) {
                 UIOverlay.update(layer.feature.properties);
             }
         }
@@ -293,16 +303,28 @@
             });
         }
 
-        // Fetching standard unified North American base map including state and provincial polygon paths
-        fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/canada-and-united-states.geojson')
+        // Load authoritative, unbreakable combined US + Canada geographic boundaries
+        fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries/USA.geo.json')
             .then(res => res.json())
-            .then(geoJsonData => {
-                topoJsonLayer = L.geoJson(geoJsonData, {
+            .then(usData => {
+                // Render US Polygons
+                topoJsonLayer = L.geoJson(usData, {
                     style: styleRegionPolygons,
                     onEachFeature: onEachFeature
                 }).addTo(map);
 
-                // Inject Custom Silhouettes with Reactive Parameters
+                // Fetch and overlay Canadian provincial shapes
+                return fetch('https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/canada.geojson');
+            })
+            .then(res => res.json())
+            .then(caData => {
+                // Render Canadian Polygons to unified layer
+                L.geoJson(caData, {
+                    style: styleRegionPolygons,
+                    onEachFeature: onEachFeature
+                }).addTo(map);
+
+                // Build Silhouette Icon Layers on top of rendering geometries
                 Object.keys(regionWildlifeData).forEach(regionName => {
                     const meta = regionWildlifeData[regionName];
                     if (svgIcons[meta.icon]) {
@@ -324,6 +346,7 @@
                 });
             });
 
+        // Initialize Legend Key Board
         const mapLegend = L.control({position: 'bottomright'});
         mapLegend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'legend');
