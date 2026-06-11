@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>The Most Dangerous Wildlife & Livestock By U.S. State</title>
+  <title>Most Dangerous Animal In Each State</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Interactive map showing the top non-canine biological hazard in every U.S. state by annual encounter odds." />
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -273,7 +273,7 @@
 
   <div class="wrap">
     <header>
-      <h1>The Most Dangerous Wildlife & Livestock By State</h1>
+      <h1>Most Dangerous Animal In Each State</h1>
     </header>
 
     <div class="card">
@@ -316,7 +316,7 @@ const CATEGORY_COLOR = {
   'Cattle/Livestock':   '#5a94c7', // Slate Blue
   'Large Wild Mammals': '#529469', // Moss Sage Green
   'Scorpion/Spiders':   '#a393b3', // Soft Clay Purple
-  'Deer Collisions':    '#d6b56b', // Amber Tan
+  'Deer':               '#d6b56b', // Amber Tan (Updated Label)
   'Venomous Creepers':  '#cd3c33', // Deep Crimson Red
   'Apex Predators':     '#803d53', // Wine Burgundy
   'Ticks & Parasites':  '#8c8c8c', // Charcoal Grey
@@ -333,20 +333,22 @@ const SVG_PATH_DICTIONARY = {
   tick: "M11,2v3c-2.2,0.5-4,2.3-4.5,4.5H4v2h2.6C6.9,12.7,7.9,13.7,9,14.2V21h2v-5.2c1,.4,2.1,.4,3,0V21h2v-6.8c1.1-.5,2.1-1.5,2.4-2.7H20v-2h-2.5C17,7.3,15.2,5.5,13,5V2H11z"
 };
 
-// Master 50-State Dataset
+// Master 50-State Dataset (Including full hardcoded parameters for Alaska & Hawaii)
 const STATE_ROWS = [
   {state:"Alabama", culprit:"Domestic Cattle", odds:"1 in 145,000", prob:"0.00069%", cat:"Cattle/Livestock", icon:"cow", text:"Pasture infrastructure creates close-quarters vulnerability where livestock crush incidents claim high non-canine mammal fatality rates."},
+  {state:"Alaska", culprit:"American Moose", odds:"1 in 35,000", prob:"0.00286%", cat:"Large Wild Mammals", icon:"moose", text:"Alaska is a statistical marvel where massive ungulates comfortably outpace apex predators. Dark-furred moose are a devastating road asset on unlit corridors."},
   {state:"Arizona", culprit:"Arizona Bark Scorpion", odds:"1 in 68,000", prob:"0.00147%", cat:"Scorpion/Spiders", icon:"scorpion", text:"This is the only scorpion species in North America with life-threatening neurotoxic envenomation capabilities, logging thousands of medical calls."},
-  {state:"Arkansas", culprit:"Whitetail Deer", odds:"1 in 44,500", prob:"0.00225%", cat:"Deer Collisions", icon:"moose", text:"Dense timber extensions bordered by high-speed corridors create sudden vehicle junctions where deer launch directly into passenger frames."},
+  {state:"Arkansas", culprit:"Whitetail Deer", odds:"1 in 44,500", prob:"0.00225%", cat:"Deer", icon:"moose", text:"Dense timber extensions bordered by high-speed corridors create sudden vehicle junctions where deer launch directly into passenger frames."},
   {state:"California", culprit:"Southern Pacific Rattlesnake", odds:"1 in 125,000", prob:"0.00080%", cat:"Venomous Creepers", icon:"scorpion", text:"Explosive suburban expansions straight into chaparral hillsides generate the state's highest pure volume of native wildlife emergency care visits."},
   {state:"Colorado", culprit:"Mountain Lion", odds:"1 in 210,000", prob:"0.00048%", cat:"Apex Predators", icon:"predator", text:"Backcountry jogging corridors crossing deep canyons create localized ambush profiles, keeping cougars at the apex of historical wilderness data."},
   {state:"Connecticut", culprit:"Blacklegged Tick", odds:"1 in 75,000", prob:"0.00133%", cat:"Ticks & Parasites", icon:"tick", text:"Microscopic vectors drive the scale here, where blacklegged ticks transmit severe Lyme carditis variants that compromise the heart's wiring."},
   {state:"Delaware", culprit:"Common Yellow Jacket", odds:"1 in 180,000", prob:"0.00056%", cat:"Stinging Insects", icon:"insect", text:"Delaware’s tightly packed manicured suburban environments yield high-density yard landscaping encounters with underground nests."},
   {state:"Florida", culprit:"American Alligator", odds:"1 in 83,000", prob:"0.00120%", cat:"Apex Predators", icon:"predator", text:"Golf course water hazards and residential retention basins bring heavy reptile profiles into direct friction with expanding residential populations."},
   {state:"Georgia", culprit:"Southern Copperhead", odds:"1 in 62,000", prob:"0.00161%", cat:"Venomous Creepers", icon:"scorpion", text:"Boasting master camouflage matching dead leaves, copperheads freeze instead of rattling when startled, leading to extreme bite logs during yard clearouts."},
+  {state:"Hawaii", culprit:"Tiger Shark", odds:"1 in 290,000", prob:"0.00034%", cat:"Apex Predators", icon:"predator", text:"Shallow oceanic shelves surrounding Maui and Oahu serve as breeding parameters for tiger shark prey lines, elevating encounter loops for swimmers."},
   {state:"Idaho", culprit:"Domestic Cattle", odds:"1 in 88,000", prob:"0.00114%", cat:"Cattle/Livestock", icon:"cow", text:"Extensive open ranch spaces mean working handlers spend lengthy operational hours tracking livestock, leading to corral crush events."},
-  {state:"Illinois", culprit:"Whitetail Deer", odds:"1 in 115,000", prob:"0.00087%", cat:"Deer Collisions", icon:"moose", text:"Agricultural fields bordered by state route grids turn migrating deer into heavy projectile hazards during peak autumn commuting brackets."},
-  {state:"Indiana", culprit:"Whitetail Deer", odds:"1 in 98,000", prob:"0.00102%", cat:"Deer Collisions", icon:"moose", text:"Great Lakes transit lanes log extensive structural and physical vehicle losses due to migrating ungulates crossing high-velocity routes."},
+  {state:"Illinois", culprit:"Whitetail Deer", odds:"1 in 115,000", prob:"0.00087%", cat:"Deer", icon:"moose", text:"Agricultural fields bordered by state route grids turn migrating deer into heavy projectile hazards during peak autumn commuting brackets."},
+  {state:"Indiana", culprit:"Whitetail Deer", odds:"1 in 98,000", prob:"0.00102%", cat:"Deer", icon:"moose", text:"Great Lakes transit lanes log extensive structural and physical vehicle losses due to migrating ungulates crossing high-velocity routes."},
   {state:"Iowa", culprit:"Domestic Cattle", odds:"1 in 64,000", prob:"0.00156%", cat:"Cattle/Livestock", icon:"cow", text:"Enormous livestock farming inventories make defensive mother cows a consistent occupational hazard to local farm workforces."},
   {state:"Kansas", culprit:"Domestic Cattle", odds:"1 in 56,000", prob:"0.00179%", cat:"Cattle/Livestock", icon:"cow", text:"Massive scale commercial feedlot junctions make livestock blunt-force trauma the leading cause of non-domestic animal entries."},
   {state:"Kentucky", culprit:"Thoroughbred Horse", odds:"1 in 72,000", prob:"0.00139%", cat:"Cattle/Livestock", icon:"cow", text:"Equestrian capital dynamics center the risk logs around training impacts, active throws, and corral containment incidents across horse lines."},
@@ -354,19 +356,19 @@ const STATE_ROWS = [
   {state:"Maine", culprit:"American Moose", odds:"1 in 48,000", prob:"0.00208%", cat:"Large Wild Mammals", icon:"moose", text:"Subarctic timberlands hold dense moose indices. Windshield-height vehicle impacts cause extreme cabin damage across deep state lines."},
   {state:"Maryland", culprit:"Common Honeybee", odds:"1 in 140,000", prob:"0.00071%", cat:"Stinging Insects", icon:"insect", text:"Sprawl borders overlapping historical farm belts position colonial stinging insects as the state's premier origin for acute anaphylaxis care."},
   {state:"Massachusetts", culprit:"Common Paper Wasp", odds:"1 in 8,185,535", prob:"0.00001%", cat:"Stinging Insects", icon:"insect", text:"Dense urbanization renders Massachusetts highly statistically safe, with anomalies stemming exclusively from household nesting wasps."},
-  {state:"Michigan", culprit:"Whitetail Deer", odds:"1 in 85,000", prob:"0.00118%", cat:"Deer Collisions", icon:"moose", text:"Forest corridors intersecting high-volume peninsula roads log tens of thousands of auto strikes annually, eclipsing large predator numbers."},
-  {state:"Minnesota", culprit:"Whitetail Deer", odds:"1 in 74,000", prob:"0.00135%", cat:"Deer Collisions", icon:"moose", text:"Commuter route metrics crossed by lake-country deer herds keep seasonal vehicle collisions locked at the front of local public health data."},
+  {state:"Michigan", culprit:"Whitetail Deer", odds:"1 in 85,000", prob:"0.00118%", cat:"Deer", icon:"moose", text:"Forest corridors intersecting high-volume peninsula roads log tens of thousands of auto strikes annually, eclipsing large predator numbers."},
+  {state:"Minnesota", culprit:"Whitetail Deer", odds:"1 in 74,000", prob:"0.00135%", cat:"Deer", icon:"moose", text:"Commuter route metrics crossed by lake-country deer herds keep seasonal vehicle collisions locked at the front of local public health data."},
   {state:"Mississippi", culprit:"Pit Vipers", odds:"1 in 59,500", prob:"0.00168%", cat:"Venomous Creepers", icon:"scorpion", text:"Dense river bottomlands combined with high heat index tracking keep water moccasins and timber crotalids highly active year-round."},
   {state:"Missouri", culprit:"Domestic Cattle", odds:"1 in 82,000", prob:"0.00122%", cat:"Cattle/Livestock", icon:"cow", text:"Broad pasture networks see frequent livestock interactions, where self-employed ranchers experience high occupational crush injury rates during seasonal transport configurations."},
   {state:"Montana", culprit:"Grizzly Bear", odds:"1 in 21,000", prob:"0.00476%", cat:"Apex Predators", icon:"predator", text:"Geographic bottleneck trails create frequent backcountry human-carnivore encounters, with protective mother grizzlies driving the metrics."},
   {state:"Nebraska", culprit:"Domestic Cattle", odds:"1 in 58,000", prob:"0.00172%", cat:"Cattle/Livestock", icon:"cow", text:"Industrial scale beef ranch infrastructures lock livestock handlers in confined sorting lanes with heavy defensive bulls."},
   {state:"Nevada", culprit:"Deer Mouse", odds:"1 in 165,000", prob:"0.00061%", cat:"Ticks & Parasites", icon:"tick", text:"Arid rural frameworks host mouse populations whose dried, airborne waste particulates transmit lethal Hantavirus variants during shed cleanups."},
-  {state:"New Hampshire", culprit:"Whitetail Deer", odds:"1 in 130,000", prob:"0.00077%", cat:"Deer Collisions", icon:"moose", text:"Deep canopy forest transit grids see highly reliable autumn deer crossings, dictating the local non-canine threat index."},
+  {state:"New Hampshire", culprit:"Whitetail Deer", odds:"1 in 130,000", prob:"0.00077%", cat:"Deer", icon:"moose", text:"Deep canopy forest transit grids see highly reliable autumn deer crossings, dictating the local non-canine threat index."},
   {state:"New Jersey", culprit:"Eastern Yellow Jacket", odds:"1 in 195,000", prob:"0.00051%", cat:"Stinging Insects", icon:"insect", text:"Extreme human density lines overlapping remaining green space trigger high-frequency backyard ground nest disruptions."},
   {state:"New Mexico", culprit:"Large Free-Ranging Mammals", odds:"1 in 41,000", prob:"0.00244%", cat:"Large Wild Mammals", icon:"cow", text:"Severe cyclical droughts drag range cattle and heavy wild elk lines down onto black unlit highway channels seeking roadside moisture."},
   {state:"New York", culprit:"Common Hornet", odds:"1 in 240,000", prob:"0.00042%", cat:"Stinging Insects", icon:"insect", text:"Upstate mountain timbers mixing with extensive suburban parks position swarming yellow jackets as the dominant systemic allergy threat."},
   {state:"North Carolina", culprit:"Invasive Fire Ant", odds:"1 in 78,000", prob:"0.00128%", cat:"Venomous Creepers", icon:"insect", text:"Rapid fire ant range expansion through the Piedmont zone catches hyper-allergic individuals off guard during routine lawn maintenance."},
-  {state:"North Dakota", culprit:"Whitetail Deer", odds:"1 in 82,000", prob:"0.00122%", cat:"Deer Collisions", icon:"moose", text:"REVISED INDEX DATA: Lacking historical wild predator fatalities, North Dakota's highest hazard stems entirely from highway car-deer interactions."},
+  {state:"North Dakota", culprit:"Whitetail Deer", odds:"1 in 82,000", prob:"0.00122%", cat:"Deer", icon:"moose", text:"REVISED INDEX DATA: Lacking historical wild predator fatalities, North Dakota's highest hazard stems entirely from highway car-deer interactions."},
   {state:"Ohio", culprit:"Common Yellow Jacket", odds:"1 in 110,000", prob:"0.00091%", cat:"Stinging Insects", icon:"insect", text:"Densely configured suburban footprints keep colonial hymenoptera locked as the primary driver of critical care animal logs."},
   {state:"Oklahoma", culprit:"Domestic Cattle", odds:"1 in 56,000", prob:"0.00179%", cat:"Cattle/Livestock", icon:"cow", text:"Extreme weather cells regularly splinter fence enclosures, launching 1,400-pound livestock assets straight onto dark rural transit arteries."},
   {state:"Oregon", culprit:"Yellow Jacket / Wasp", odds:"1 in 120,000", prob:"0.00083%", cat:"Stinging Insects", icon:"insect", text:"Industrial logging operations across mountain timberlines bring high occupational risk for multi-sting colony swarms."},
@@ -376,12 +378,12 @@ const STATE_ROWS = [
   {state:"South Dakota", culprit:"Domestic Cattle", odds:"1 in 48,000", prob:"0.00208%", cat:"Cattle/Livestock", icon:"cow", text:"Immense open pasture configurations demand heavy close-range management hours from agricultural handlers, raising trampling risk."},
   {state:"Tennessee", culprit:"Brown Recluse Spider", odds:"1 in 42,435", prob:"0.00236%", cat:"Scorpion/Spiders", icon:"scorpion", text:"Epicenter for loxoscelism. Their preference for dark, interior residential spaces triggers severe necrotic tissue damage lines."},
   {state:"Texas", culprit:"Invasive Fire Ant", odds:"1 in 52,000", prob:"0.00192%", cat:"Venomous Creepers", icon:"insect", text:"Super-colonies crossing massive urban belts cause severe systemic envenomation loops that override native desert reptile records."},
-  {state:"Utah", culprit:"Whitetail / Mule Deer", odds:"1 in 89,000", prob:"0.00112%", cat:"Deer Collisions", icon:"moose", text:"Intense canyon migration tracks crossing expanding metro highway bypass grids keep automotive deer impacts at the apex of trauma indices."},
+  {state:"Utah", culprit:"Whitetail / Mule Deer", odds:"1 in 89,000", prob:"0.00112%", cat:"Deer", icon:"moose", text:"Intense canyon migration tracks crossing expanding metro highway bypass grids keep automotive deer impacts at the apex of trauma indices."},
   {state:"Vermont", culprit:"Blacklegged Tick", odds:"1 in 68,000", prob:"0.00147%", cat:"Ticks & Parasites", icon:"tick", text:"Shorter winter brackets have caused tick counts to swell across dairy pastures, compounding long-term Lyme transmission data."},
   {state:"Virginia", culprit:"Common Yellow Jacket", odds:"1 in 105,000", prob:"0.00095%", cat:"Stinging Insects", icon:"insect", text:"Suburban expansions directly intercepting old agricultural paths generate frequent landscaping contacts with underground insect colonies."},
   {state:"Washington", culprit:"Western Yellow Jacket", odds:"1 in 155,000", prob:"0.00065%", cat:"Stinging Insects", icon:"insect", text:"While wilderness tracks hold cougars and black bears, the total volume of medical interventions is dominated by timberline wasps."},
-  {state:"West Virginia", culprit:"Whitetail Deer", odds:"1 in 30,271", prob:"0.00330%", cat:"Deer Collisions", icon:"moose", text:"Mountain slopes paired with heavy canopy cover give West Virginia the single highest vehicle-animal collision index in the lower 48."},
-  {state:"Wisconsin", culprit:"Whitetail Deer", odds:"1 in 62,000", prob:"0.00161%", cat:"Deer Collisions", icon:"moose", text:"Massive localized deer populations crossing high-speed northern transit grids easily outpace low gray wolf and black bear metrics."},
+  {state:"West Virginia", culprit:"Whitetail Deer", odds:"1 in 30,271", prob:"0.00330%", cat:"Deer", icon:"moose", text:"Mountain slopes paired with heavy canopy cover give West Virginia the single highest vehicle-animal collision index in the lower 48."},
+  {state:"Wisconsin", culprit:"Whitetail Deer", odds:"1 in 62,000", prob:"0.00161%", cat:"Deer", icon:"moose", text:"Massive localized deer populations crossing high-speed northern transit grids easily outpace low gray wolf and black bear metrics."},
   {state:"Wyoming", culprit:"Grizzly Bear", odds:"1 in 28,000", prob:"0.00357%", cat:"Apex Predators", icon:"predator", text:"Extensive wilderness trail networks across the Greater Yellowstone Ecosystem track frequent, high-stakes contact with defensive grizzlies."}
 ];
 
@@ -555,7 +557,7 @@ const embedToggle = document.getElementById("embedToggle");
 const embedPanel  = document.getElementById("embedPanel");
 const embedCode   = document.getElementById("embedCode");
 
-embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Wildlife & Livestock By State"\n  width="100%" height="1100"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  loading="lazy">\n</iframe>`;
+embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1100"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  loading="lazy">\n</iframe>`;
 
 embedToggle.addEventListener("click", () => {
   const hidden = embedPanel.hasAttribute("hidden");
