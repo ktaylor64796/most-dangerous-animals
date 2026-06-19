@@ -10,11 +10,11 @@
 
   <style>
     :root {
-      /* Deep environmental/broadcast editorial color spectrum */
-      --bgTop: #0b1511;
-      --bgBottom: #030605;
-      --cardTop: #111e19;
-      --cardBottom: #09120e;
+      /* Deep environmental/broadcast editorial color spectrum optimized for CSB dark interfaces */
+      --bgTop: #0b1a30;         /* CSB Midnight Navy Base */
+      --bgBottom: #040a14;
+      --cardTop: #112440;
+      --cardBottom: #071324;
 
       --ink: #f4f7f5;
       --muted: #8fa098;
@@ -31,8 +31,8 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(1100px 600px at 50% -200px, rgba(82, 148, 105, 0.25), transparent 62%),
-        radial-gradient(900px 520px at 85% 25%, rgba(217, 65, 54, 0.08), transparent 60%),
+        radial-gradient(1100px 600px at 50% -200px, rgba(218, 41, 28, 0.15), transparent 62%), /* CSB Red ambient flare */
+        radial-gradient(900px 520px at 85% 25%, rgba(236, 201, 75, 0.04), transparent 60%),
         linear-gradient(180deg, var(--bgTop), var(--bgBottom));
     }
 
@@ -52,6 +52,10 @@
       font-weight: 950;
       letter-spacing: -.02em;
       text-transform: uppercase;
+      color: #fff;
+      border-left: 5px solid #da291c; /* CSB Red accent bar */
+      padding-left: 15px;
+      display: inline-block;
     }
 
     .card {
@@ -75,8 +79,8 @@
 
     /* SVG ANIMAL ICON RENDER SYSTEM */
     .map-vector-icon {
-      fill: #030605;
-      opacity: 0.78;
+      fill: #02060d;
+      opacity: 0.65;
       pointer-events: none;
     }
 
@@ -159,7 +163,7 @@
       flex: 1 1 55%;
       min-width: 0;
       font-weight: 900;
-      color: #dfc17d;
+      color: #ecc94b; /* CSB Yellow/Gold Accent */
       text-align: right;
     }
 
@@ -175,9 +179,9 @@
       color: var(--muted);
     }
     .footer a {
-      color: #529469;
+      color: #da291c;
       text-decoration: none;
-      border-bottom: 1px dotted rgba(82,148,105,.5);
+      border-bottom: 1px dotted rgba(218, 41, 28, .5);
       font-weight: 900;
     }
 
@@ -190,8 +194,8 @@
     .embed-btn {
       appearance: none;
       border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(90deg, #529469, #5a94c7);
-      color: #030605;
+      background: linear-gradient(90deg, #da291c, #457b9d);
+      color: #fff;
       font-weight: 950;
       padding: 10px 14px;
       border-radius: 12px;
@@ -233,8 +237,8 @@
       pointer-events: none;
       display: none;
       z-index: 999;
-      background: rgba(6, 12, 10, 0.96);
-      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(11, 26, 48, 0.98); /* CSB Navy */
+      border: 1px solid rgba(218, 41, 28, 0.4); /* CSB Red Border flare */
       border-radius: 12px;
       padding: 14px;
       box-shadow: 0 16px 40px rgba(0,0,0,.6);
@@ -254,7 +258,7 @@
     .tooltip-stat {
       font-size: 13px;
       font-weight: 800;
-      color: #dfc17d;
+      color: #ecc94b;
       margin-bottom: 6px;
     }
     .tooltip .narrative {
@@ -264,8 +268,6 @@
       border-top: 1px solid rgba(255,255,255,.1);
       padding-top: 6px;
       margin-top: 6px;
-      font-family: 'Georgia', serif;
-      font-style: italic;
     }
   </style>
 </head>
@@ -273,7 +275,7 @@
 
   <div class="wrap">
     <header>
-      <h1>Most Dangerous Animal In Each State</h1>
+      <h1>Most Dangerous Animal by State Matrix</h1>
     </header>
 
     <div class="card">
@@ -289,8 +291,8 @@
 
       <div class="footer">
         <div>
-          METHODOLOGY BASELINE: <strong style="color:rgba(245,247,251,.92)">CDC WONDER & DISCHARGE METRICS</strong> ·
-          <a href="#" target="_blank">Wildlife Risk Index</a>
+          METHODOLOGY BASELINE: <strong style="color:rgba(245,247,251,.92)">CDC WONDER INTERACTIVE MORTALITY LOGS (2018–2024)</strong> ·
+          <a href="https://www.canadasportsbetting.ca/" target="_blank">Canada Sports Betting</a>
         </div>
       </div>
 
@@ -311,266 +313,60 @@
 <script>
 const CANONICAL_URL = "https://YOUR-USERNAME.github.io/wildlife-hazards/us.html";
 
-// Locked Design Color Palette Categories
+// Locked Design Color Palette Categories matching your requested taxonomy layout
 const CATEGORY_COLOR = {
-  'Cattle/Livestock':   '#5a94c7', // Slate Blue
-  'Large Wild Mammals': '#529469', // Moss Sage Green
-  'Scorpion/Spiders':   '#a393b3', // Soft Clay Purple
-  'Deer':               '#d6b56b', // Amber Tan (Updated Label)
-  'Venomous Creepers':  '#cd3c33', // Deep Crimson Red
-  'Apex Predators':     '#803d53', // Wine Burgundy
-  'Ticks & Parasites':  '#8c8c8c', // Charcoal Grey
-  'Stinging Insects':   '#e3ca44'  // Ochre Yellow
+  'Bees, Wasps & Hornets': '#1d3557', // Deep Blue
+  'Dogs':                  '#457b9d', // Slate Blue
+  'Livestock Mammals':     '#e63946', // Alert Red
+  'Horses (Riding Falls)': '#a8dadc', // Light Blue
+  'Insufficient Data':     '#94a3b8'  /* Slate Gray */
 };
 
-// SVG Path Vector Definitions for crisp overlay maps
+// SVG Path Vector Definitions for iconic map overlays
 const SVG_PATH_DICTIONARY = {
-  cow: "M22,11C22,10 20,9 18,9H15V6A2,2 0 0,0 13,4H7A2,2 0 0,0 5,6V9H2V11H4V19H6V16H16V19H18V11H22M14,11H8V8H14V11Z",
-  moose: "M12,2C11.5,3.5 10,4.5 8,4.5V6C10,6 11,7 11,8.5V11H7V9H5V11H3V13H5V21H7V13H11V21H13V13H17V21H19V13H21V11H19V9H17V11H13V8.5C13,7 14,6 16,6V4.5C14,4.5 12.5,3.5 12,2Z",
-  scorpion: "M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,18A3,3 0 0,1 9,15C9,13.7 9.8,12.6 11,12.1V9.1C9.8,8.6 9,7.5 9,6.2A3,3 0 0,1 12,3.2A3,3 0 0,1 15,6.2C15,7.5 14.2,8.6 13,9.1V12.1C14.2,12.6 15,13.7 15,15A3,3 0 0,1 12,18Z",
   insect: "M12,2A3,3 0 0,1 15,5V7H17V9H15V11H18V13H15V15H17V17H15V19A3,3 0 0,1 12,22A3,3 0 0,1 9,19V17H7V15H9V13H6V11H9V9H7V7H9V5A3,3 0 0,1 12,2Z",
-  predator: "M2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z",
-  tick: "M11,2v3c-2.2,0.5-4,2.3-4.5,4.5H4v2h2.6C6.9,12.7,7.9,13.7,9,14.2V21h2v-5.2c1,.4,2.1,.4,3,0V21h2v-6.8c1.1-.5,2.1-1.5,2.4-2.7H20v-2h-2.5C17,7.3,15.2,5.5,13,5V2H11z"
+  dog: "M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,18A3,3 0 0,1 9,15C9,13.7 9.8,12.6 11,12.1V9.1C9.8,8.6 9,7.5 9,6.2A3,3 0 0,1 12,3.2A3,3 0 0,1 15,6.2C15,7.5 14.2,8.6 13,9.1V12.1C14.2,12.6 15,13.7 15,15A3,3 0 0,1 12,18Z",
+  cow: "M22,11C22,10 20,9 18,9H15V6A2,2 0 0,0 13,4H7A2,2 0 0,0 5,6V9H2V11H4V19H6V16H16V19H18V11H22M14,11H8V8H14V11Z",
+  horse: "M19,3H15C14,3 13,4 12,5C11,4 10,3 9,3H5C3,3 2,4 2,6V11C2,13 3.5,15 5.5,16.5L2,21H4L7.5,16.5H16.5L20,21H22L18.5,16.5C20.5,15 22,13 22,11V6C22,4 21,3 19,3Z"
 };
 
-// Master 50-State Dataset (Including full hardcoded parameters for Alaska & Hawaii)
+// Master 50-State Dataset mapped cleanly from your exact spreadsheet metrics
 const STATE_ROWS = [
-  {state:"Alabama", culprit:"Domestic Cattle", odds:"1 in 145,000", prob:"0.00069%", cat:"Cattle/Livestock", icon:"cow", text:"Pasture infrastructure creates close-quarters vulnerability where livestock crush incidents claim high non-canine mammal fatality rates."},
-  {state:"Alaska", culprit:"American Moose", odds:"1 in 35,000", prob:"0.00286%", cat:"Large Wild Mammals", icon:"moose", text:"Alaska is a statistical marvel where massive ungulates comfortably outpace apex predators. Dark-furred moose are a devastating road asset on unlit corridors."},
-  {state:"Arizona", culprit:"Arizona Bark Scorpion", odds:"1 in 68,000", prob:"0.00147%", cat:"Scorpion/Spiders", icon:"scorpion", text:"This is the only scorpion species in North America with life-threatening neurotoxic envenomation capabilities, logging thousands of medical calls."},
-  {state:"Arkansas", culprit:"Whitetail Deer", odds:"1 in 44,500", prob:"0.00225%", cat:"Deer", icon:"moose", text:"Dense timber extensions bordered by high-speed corridors create sudden vehicle junctions where deer launch directly into passenger frames."},
-  {state:"California", culprit:"Southern Pacific Rattlesnake", odds:"1 in 125,000", prob:"0.00080%", cat:"Venomous Creepers", icon:"scorpion", text:"Explosive suburban expansions straight into chaparral hillsides generate the state's highest pure volume of native wildlife emergency care visits."},
-  {state:"Colorado", culprit:"Mountain Lion", odds:"1 in 210,000", prob:"0.00048%", cat:"Apex Predators", icon:"predator", text:"Backcountry jogging corridors crossing deep canyons create localized ambush profiles, keeping cougars at the apex of historical wilderness data."},
-  {state:"Connecticut", culprit:"Blacklegged Tick", odds:"1 in 75,000", prob:"0.00133%", cat:"Ticks & Parasites", icon:"tick", text:"Microscopic vectors drive the scale here, where blacklegged ticks transmit severe Lyme carditis variants that compromise the heart's wiring."},
-  {state:"Delaware", culprit:"Common Yellow Jacket", odds:"1 in 180,000", prob:"0.00056%", cat:"Stinging Insects", icon:"insect", text:"Delaware’s tightly packed manicured suburban environments yield high-density yard landscaping encounters with underground nests."},
-  {state:"Florida", culprit:"American Alligator", odds:"1 in 83,000", prob:"0.00120%", cat:"Apex Predators", icon:"predator", text:"Golf course water hazards and residential retention basins bring heavy reptile profiles into direct friction with expanding residential populations."},
-  {state:"Georgia", culprit:"Southern Copperhead", odds:"1 in 62,000", prob:"0.00161%", cat:"Venomous Creepers", icon:"scorpion", text:"Boasting master camouflage matching dead leaves, copperheads freeze instead of rattling when startled, leading to extreme bite logs during yard clearouts."},
-  {state:"Hawaii", culprit:"Tiger Shark", odds:"1 in 290,000", prob:"0.00034%", cat:"Apex Predators", icon:"predator", text:"Shallow oceanic shelves surrounding Maui and Oahu serve as breeding parameters for tiger shark prey lines, elevating encounter loops for swimmers."},
-  {state:"Idaho", culprit:"Domestic Cattle", odds:"1 in 88,000", prob:"0.00114%", cat:"Cattle/Livestock", icon:"cow", text:"Extensive open ranch spaces mean working handlers spend lengthy operational hours tracking livestock, leading to corral crush events."},
-  {state:"Illinois", culprit:"Whitetail Deer", odds:"1 in 115,000", prob:"0.00087%", cat:"Deer", icon:"moose", text:"Agricultural fields bordered by state route grids turn migrating deer into heavy projectile hazards during peak autumn commuting brackets."},
-  {state:"Indiana", culprit:"Whitetail Deer", odds:"1 in 98,000", prob:"0.00102%", cat:"Deer", icon:"moose", text:"Great Lakes transit lanes log extensive structural and physical vehicle losses due to migrating ungulates crossing high-velocity routes."},
-  {state:"Iowa", culprit:"Domestic Cattle", odds:"1 in 64,000", prob:"0.00156%", cat:"Cattle/Livestock", icon:"cow", text:"Enormous livestock farming inventories make defensive mother cows a consistent occupational hazard to local farm workforces."},
-  {state:"Kansas", culprit:"Domestic Cattle", odds:"1 in 56,000", prob:"0.00179%", cat:"Cattle/Livestock", icon:"cow", text:"Massive scale commercial feedlot junctions make livestock blunt-force trauma the leading cause of non-domestic animal entries."},
-  {state:"Kentucky", culprit:"Thoroughbred Horse", odds:"1 in 72,000", prob:"0.00139%", cat:"Cattle/Livestock", icon:"cow", text:"Equestrian capital dynamics center the risk logs around training impacts, active throws, and corral containment incidents across horse lines."},
-  {state:"Louisiana", culprit:"Invasive Fire Ant", odds:"1 in 95,000", prob:"0.00105%", cat:"Venomous Creepers", icon:"insect", text:"Floodwaters trigger entire fire ant structures to float as waterproof mats, presenting massive envenomation vectors to wading humans."},
-  {state:"Maine", culprit:"American Moose", odds:"1 in 48,000", prob:"0.00208%", cat:"Large Wild Mammals", icon:"moose", text:"Subarctic timberlands hold dense moose indices. Windshield-height vehicle impacts cause extreme cabin damage across deep state lines."},
-  {state:"Maryland", culprit:"Common Honeybee", odds:"1 in 140,000", prob:"0.00071%", cat:"Stinging Insects", icon:"insect", text:"Sprawl borders overlapping historical farm belts position colonial stinging insects as the state's premier origin for acute anaphylaxis care."},
-  {state:"Massachusetts", culprit:"Common Paper Wasp", odds:"1 in 8,185,535", prob:"0.00001%", cat:"Stinging Insects", icon:"insect", text:"Dense urbanization renders Massachusetts highly statistically safe, with anomalies stemming exclusively from household nesting wasps."},
-  {state:"Michigan", culprit:"Whitetail Deer", odds:"1 in 85,000", prob:"0.00118%", cat:"Deer", icon:"moose", text:"Forest corridors intersecting high-volume peninsula roads log tens of thousands of auto strikes annually, eclipsing large predator numbers."},
-  {state:"Minnesota", culprit:"Whitetail Deer", odds:"1 in 74,000", prob:"0.00135%", cat:"Deer", icon:"moose", text:"Commuter route metrics crossed by lake-country deer herds keep seasonal vehicle collisions locked at the front of local public health data."},
-  {state:"Mississippi", culprit:"Pit Vipers", odds:"1 in 59,500", prob:"0.00168%", cat:"Venomous Creepers", icon:"scorpion", text:"Dense river bottomlands combined with high heat index tracking keep water moccasins and timber crotalids highly active year-round."},
-  {state:"Missouri", culprit:"Domestic Cattle", odds:"1 in 82,000", prob:"0.00122%", cat:"Cattle/Livestock", icon:"cow", text:"Broad pasture networks see frequent livestock interactions, where self-employed ranchers experience high occupational crush injury rates during seasonal transport configurations."},
-  {state:"Montana", culprit:"Grizzly Bear", odds:"1 in 21,000", prob:"0.00476%", cat:"Apex Predators", icon:"predator", text:"Geographic bottleneck trails create frequent backcountry human-carnivore encounters, with protective mother grizzlies driving the metrics."},
-  {state:"Nebraska", culprit:"Domestic Cattle", odds:"1 in 58,000", prob:"0.00172%", cat:"Cattle/Livestock", icon:"cow", text:"Industrial scale beef ranch infrastructures lock livestock handlers in confined sorting lanes with heavy defensive bulls."},
-  {state:"Nevada", culprit:"Deer Mouse", odds:"1 in 165,000", prob:"0.00061%", cat:"Ticks & Parasites", icon:"tick", text:"Arid rural frameworks host mouse populations whose dried, airborne waste particulates transmit lethal Hantavirus variants during shed cleanups."},
-  {state:"New Hampshire", culprit:"Whitetail Deer", odds:"1 in 130,000", prob:"0.00077%", cat:"Deer", icon:"moose", text:"Deep canopy forest transit grids see highly reliable autumn deer crossings, dictating the local non-canine threat index."},
-  {state:"New Jersey", culprit:"Eastern Yellow Jacket", odds:"1 in 195,000", prob:"0.00051%", cat:"Stinging Insects", icon:"insect", text:"Extreme human density lines overlapping remaining green space trigger high-frequency backyard ground nest disruptions."},
-  {state:"New Mexico", culprit:"Large Free-Ranging Mammals", odds:"1 in 41,000", prob:"0.00244%", cat:"Large Wild Mammals", icon:"cow", text:"Severe cyclical droughts drag range cattle and heavy wild elk lines down onto black unlit highway channels seeking roadside moisture."},
-  {state:"New York", culprit:"Common Hornet", odds:"1 in 240,000", prob:"0.00042%", cat:"Stinging Insects", icon:"insect", text:"Upstate mountain timbers mixing with extensive suburban parks position swarming yellow jackets as the dominant systemic allergy threat."},
-  {state:"North Carolina", culprit:"Invasive Fire Ant", odds:"1 in 78,000", prob:"0.00128%", cat:"Venomous Creepers", icon:"insect", text:"Rapid fire ant range expansion through the Piedmont zone catches hyper-allergic individuals off guard during routine lawn maintenance."},
-  {state:"North Dakota", culprit:"Whitetail Deer", odds:"1 in 82,000", prob:"0.00122%", cat:"Deer", icon:"moose", text:"REVISED INDEX DATA: Lacking historical wild predator fatalities, North Dakota's highest hazard stems entirely from highway car-deer interactions."},
-  {state:"Ohio", culprit:"Common Yellow Jacket", odds:"1 in 110,000", prob:"0.00091%", cat:"Stinging Insects", icon:"insect", text:"Densely configured suburban footprints keep colonial hymenoptera locked as the primary driver of critical care animal logs."},
-  {state:"Oklahoma", culprit:"Domestic Cattle", odds:"1 in 56,000", prob:"0.00179%", cat:"Cattle/Livestock", icon:"cow", text:"Extreme weather cells regularly splinter fence enclosures, launching 1,400-pound livestock assets straight onto dark rural transit arteries."},
-  {state:"Oregon", culprit:"Yellow Jacket / Wasp", odds:"1 in 120,000", prob:"0.00083%", cat:"Stinging Insects", icon:"insect", text:"Industrial logging operations across mountain timberlines bring high occupational risk for multi-sting colony swarms."},
-  {state:"Pennsylvania", culprit:"Common Honeybee", odds:"1 in 95,000", prob:"0.00105%", cat:"Stinging Insects", icon:"insect", text:"Densely packed wooded valleys create immediate human-hive contact loops during seasonal yard clearing and trail hiking."},
-  {state:"Rhode Island", culprit:"Blacklegged Tick", odds:"1 in 140,000", prob:"0.00071%", cat:"Ticks & Parasites", icon:"tick", text:"Small state boundaries mean tiny apex predator populations, leaving tick-borne Lyme and Babesiosis vectors to dominate field metrics."},
-  {state:"South Carolina", culprit:"Paper Wasp", odds:"1 in 84,000", prob:"0.00119%", cat:"Stinging Insects", icon:"insect", text:"Intense seasonal humidity prompts heavy multi-colony structural nests along eaves and barns, raising emergency stinging counts."},
-  {state:"South Dakota", culprit:"Domestic Cattle", odds:"1 in 48,000", prob:"0.00208%", cat:"Cattle/Livestock", icon:"cow", text:"Immense open pasture configurations demand heavy close-range management hours from agricultural handlers, raising trampling risk."},
-  {state:"Tennessee", culprit:"Brown Recluse Spider", odds:"1 in 42,435", prob:"0.00236%", cat:"Scorpion/Spiders", icon:"scorpion", text:"Epicenter for loxoscelism. Their preference for dark, interior residential spaces triggers severe necrotic tissue damage lines."},
-  {state:"Texas", culprit:"Invasive Fire Ant", odds:"1 in 52,000", prob:"0.00192%", cat:"Venomous Creepers", icon:"insect", text:"Super-colonies crossing massive urban belts cause severe systemic envenomation loops that override native desert reptile records."},
-  {state:"Utah", culprit:"Whitetail / Mule Deer", odds:"1 in 89,000", prob:"0.00112%", cat:"Deer", icon:"moose", text:"Intense canyon migration tracks crossing expanding metro highway bypass grids keep automotive deer impacts at the apex of trauma indices."},
-  {state:"Vermont", culprit:"Blacklegged Tick", odds:"1 in 68,000", prob:"0.00147%", cat:"Ticks & Parasites", icon:"tick", text:"Shorter winter brackets have caused tick counts to swell across dairy pastures, compounding long-term Lyme transmission data."},
-  {state:"Virginia", culprit:"Common Yellow Jacket", odds:"1 in 105,000", prob:"0.00095%", cat:"Stinging Insects", icon:"insect", text:"Suburban expansions directly intercepting old agricultural paths generate frequent landscaping contacts with underground insect colonies."},
-  {state:"Washington", culprit:"Western Yellow Jacket", odds:"1 in 155,000", prob:"0.00065%", cat:"Stinging Insects", icon:"insect", text:"While wilderness tracks hold cougars and black bears, the total volume of medical interventions is dominated by timberline wasps."},
-  {state:"West Virginia", culprit:"Whitetail Deer", odds:"1 in 30,271", prob:"0.00330%", cat:"Deer", icon:"moose", text:"Mountain slopes paired with heavy canopy cover give West Virginia the single highest vehicle-animal collision index in the lower 48."},
-  {state:"Wisconsin", culprit:"Whitetail Deer", odds:"1 in 62,000", prob:"0.00161%", cat:"Deer", icon:"moose", text:"Massive localized deer populations crossing high-speed northern transit grids easily outpace low gray wolf and black bear metrics."},
-  {state:"Wyoming", culprit:"Grizzly Bear", odds:"1 in 28,000", prob:"0.00357%", cat:"Apex Predators", icon:"predator", text:"Extensive wilderness trail networks across the Greater Yellowstone Ecosystem track frequent, high-stakes contact with defensive grizzlies."}
-];
-
-const ROW_BY_STATE = Object.fromEntries(STATE_ROWS.map(r => [r.state, r]));
-
-/* =============================   Helpers: hex alpha processing============================= */
-function hexToRgb(hex){
-  hex = hex.replace('#','');
-  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
-  const n = parseInt(hex,16);
-  return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
-}
-function rgbToHex({r,g,b}){
-  const h=x=>x.toString(16).padStart(2,'0');
-  return `#${h(r)}${h(g)}${h(b)}`;
-}
-function lighten(hex,t=0.15){
-  const {r,g,b}=hexToRgb(hex);
-  return rgbToHex({
-    r:Math.round(r+(255-r)*t),
-    g:Math.round(g+(255-g)*t),
-    b:Math.round(b+(255-b)*t)
-  });
-}
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
-}
-
-/* =============================   Build pills (Categorical sums)============================= */
-const counts = {};
-STATE_ROWS.forEach(r => counts[r.cat] = (counts[r.cat]||0)+1);
-
-const pillOrder = Object.entries(counts)
-  .sort((a,b)=>b[1]-a[1])
-  .map(([cat, n]) => ({cat, n}));
-
-const pills = document.getElementById("pills");
-pills.innerHTML = pillOrder.map(p => {
-  const color = CATEGORY_COLOR[p.cat] || "#9aa6bf";
-  return `<div class="pill"><span class="sw" style="background:${color}"></span>${esc(p.cat)} (${p.n})</div>`;
-}).join("");
-
-/* =============================   Build 4-column state table============================= */
-const lists = document.getElementById("lists");
-const sorted = STATE_ROWS.slice().sort((a,b)=>a.state.localeCompare(b.state));
-
-const COLS = 4;
-const perCol = Math.ceil(sorted.length / COLS);
-
-for(let i=0;i<COLS;i++){
-  const chunk = sorted.slice(i*perCol,(i+1)*perCol);
-  const col = document.createElement("div");
-  col.className = "col";
-  col.innerHTML = chunk.map(r => `
-    <div class="row">
-      <div class="name" title="${esc(r.state)}">${esc(r.state)}</div>
-      <div class="val">${esc(r.culprit)}</div>
-    </div>
-  `).join("");
-  lists.appendChild(col);
-}
-
-/* =============================   Map layer render (US Atlas TopoJSON)============================= */
-const svg = d3.select("#map");
-const tooltip = d3.select("#tt");
-const width = 975, height = 610;
-
-const projection = d3.geoAlbersUsa().scale(1300).translate([width/2, height/2]);
-const path = d3.geoPath(projection);
-
-function placeTooltip(event){
-  const rect = tooltip.node().getBoundingClientRect();
-  const pad = 10;
-  let x = event.pageX + 14;
-  let y = event.pageY + 14;
-  if (x + rect.width > window.innerWidth - pad) x = window.innerWidth - rect.width - pad;
-  if (y + rect.height > window.innerHeight - pad) y = window.innerHeight - rect.height - pad;
-  tooltip.style("left", x+"px").style("top", y+"px");
-}
-
-function showTip(event, stateName, data){
-  tooltip
-    .style("display","block")
-    .html(
-      `<strong>${esc(stateName)}</strong>
-       <div class="tooltip-stat">🚨 Vector: ${esc(data.culprit)}</div>
-       <div>Annual Encounter Odds: <b>${esc(data.odds)}</b></div>
-       <div>Implied Probability: <b>${esc(data.prob)}</b></div>
-       <div class="narrative">${esc(data.text)}</div>`
-    );
-  placeTooltip(event);
-}
-
-function hideTip(){ tooltip.style("display","none"); }
-
-d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
-  const states = topojson.feature(us, us.objects.states).features;
-  const g = svg.attr("viewBox", `0 0 ${width} ${height}`).append("g");
-
-  const layer = g.selectAll("g.state")
-    .data(states)
-    .join("g")
-    .attr("class","state");
-
-  // Base Geographic Color Polygons
-  layer.append("path")
-    .attr("d", path)
-    .attr("fill", d => {
-      const row = ROW_BY_STATE[d.properties.name];
-      return row ? CATEGORY_COLOR[row.cat] : "#162620";
-    })
-    .attr("fill-opacity", 0.88);
-
-  // High-contrast clean state outlines
-  layer.append("path").attr("d", path)
-    .attr("fill","none").attr("stroke","#fff").attr("stroke-opacity",0.12)
-    .attr("stroke-width",1.0).attr("stroke-linejoin","round");
-
-  // Interaction Hover Outlines
-  layer.append("path")
-    .attr("class","hover-outline")
-    .attr("d", path)
-    .attr("fill","none")
-    .attr("stroke","#f4f7f5")
-    .attr("stroke-opacity",0)
-    .attr("stroke-width",2.2)
-    .attr("pointer-events","none");
-
-  // SVG Custom Silhouette Icons Placement Engine
-  const gIcons = g.append("g");
-
-  states.forEach(d => {
-    const name = d.properties.name;
-    const row = ROW_BY_STATE[name];
-    if(!row || !SVG_PATH_DICTIONARY[row.icon]) return;
-
-    // Calculate boundary centers for balanced label placement
-    const centroid = path.centroid(d);
-    if (!centroid || isNaN(centroid[0]) || isNaN(centroid[1])) return;
-
-    // Responsive icon scaling based on relative state shape areas
-    const [[x0,y0],[x1,y1]] = path.bounds(d);
-    const size = Math.max(16, Math.min(28, Math.min(x1-x0, y1-y0) * 0.4));
-
-    // Append vector paths cleanly centered over state data points
-    gIcons.append("path")
-      .attr("d", SVG_PATH_DICTIONARY[row.icon])
-      .attr("class", "map-vector-icon")
-      .attr("transform", `translate(${centroid[0] - size/2}, ${centroid[1] - size/2}) scale(${size / 24})`)
-      .style("pointer-events", "none");
-  });
-
-  // Wire event handlers to vector geometry layers
-  layer.on("mousemove", (event, d) => {
-      const row = ROW_BY_STATE[d.properties.name];
-      if(!row){ hideTip(); return; }
-      showTip(event, d.properties.name, row);
-      d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", .65);
-    })
-    .on("mouseout", (event) => {
-      hideTip();
-      d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", 0);
-    });
-
-}).catch(err => console.error("US TopoJSON pipeline error:", err));
-
-/* =============================   Embed code generation module ============================= */
-const embedToggle = document.getElementById("embedToggle");
-const embedPanel  = document.getElementById("embedPanel");
-const embedCode   = document.getElementById("embedCode");
-
-embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1100"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  loading="lazy">\n</iframe>`;
-
-embedToggle.addEventListener("click", () => {
-  const hidden = embedPanel.hasAttribute("hidden");
-  if(hidden){
-    embedPanel.removeAttribute("hidden");
-    embedToggle.setAttribute("aria-expanded","true");
-    embedToggle.textContent = "Hide embed code";
-  }else{
-    embedPanel.setAttribute("hidden","");
-    embedToggle.setAttribute("aria-expanded","false");
-    embedToggle.textContent = "Get embed code";
-  }
-});
-</script>
-</body>
-</html>
+  {state:"Texas", culprit:"Bees, Wasps & Hornets", catDeaths:90, totalDeaths:291, rate:"1.40", coverage:"84%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Backyard stinging insects account for nearly a third of all tracked animal fatalities in the state."},
+  {state:"California", culprit:"Dogs", catDeaths:52, totalDeaths:200, rate:"0.73", coverage:"83%", cat:"Dogs", icon:"dog", text:"Proximity in dense suburban and municipal environments keeps domestic dogs locked at the top of the map vector."},
+  {state:"Florida", culprit:"Dogs", catDeaths:47, totalDeaths:141, rate:"0.91", coverage:"79%", cat:"Dogs", icon:"dog", text:"Domestic animals easily outpace coastal longshots like sharks or regional alligator entries in raw data logs."},
+  {state:"Ohio", culprit:"Bees, Wasps & Hornets", catDeaths:28, totalDeaths:101, rate:"1.23", coverage:"84%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"High-density yard landscaping encounters with underground or structure nests keep insect stings out front."},
+  {state:"Pennsylvania", culprit:"Bees, Wasps & Hornets", catDeaths:34, totalDeaths:89, rate:"0.98", coverage:"72%", cat:"Bees, Wasps & Hornets", icon:"insect", text:" Wooded valleys create immediate human-hive contact loops during outdoor residential clearing operations."},
+  {state:"North Carolina", culprit:"Bees, Wasps & Hornets", catDeaths:33, totalDeaths:86, rate:"1.15", coverage:"83%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Seasonal outdoor exposure and environmental factors keep colonial stinging insects at the apex of localized indices."},
+  {state:"New York", culprit:"Bees, Wasps & Hornets", catDeaths:25, totalDeaths:80, rate:"0.58", coverage:"81%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Suburban park grids mixed with mountain timbers position swarming vectors as the leading systemic allergy hazard."},
+  {state:"Tennessee", culprit:"Dogs", catDeaths:19, totalDeaths:76, rate:"1.56", coverage:"68%", cat:"Dogs", icon:"dog", text:"Human proximity to domestic dog networks accounts for the vast majority of direct physical interaction hazards."},
+  {state:"Michigan", culprit:"Bees, Wasps & Hornets", catDeaths:28, totalDeaths:75, rate:"1.07", coverage:"75%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Backyard stinging incidents readily outpace larger mammalian or predatory entries across statewide tracking systems."},
+  {state:"Georgia", culprit:"Bees, Wasps & Hornets", catDeaths:28, totalDeaths:75, rate:"0.99", coverage:"76%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"High baseline heat indexes keep colonial insects active, generating extensive critical care logs during summer cycles."},
+  {state:"Illinois", culprit:"Dogs", catDeaths:20, totalDeaths:74, rate:"0.84", coverage:"70%", cat:"Dogs", icon:"dog", text:"Suburban population hubs center predominantly around domestic incidents, tracking well clear of deep wilderness options."},
+  {state:"Arizona", culprit:"Dogs", catDeaths:19, totalDeaths:72, rate:"1.40", coverage:"88%", cat:"Dogs", icon:"dog", text:"Residential parameters show domestic dog encounters leading wild desert reptiles by a considerable margin in trauma registries."},
+  {state:"Missouri", culprit:"Other mammals (livestock)", catDeaths:27, totalDeaths:69, rate:"1.60", coverage:"71%", cat:"Livestock Mammals", icon:"cow", text:"Broad farm and pasture infrastructures create close-quarters occupational risks where livestock crush events claim heavy counts."},
+  {state:"Oklahoma", culprit:"Dogs", catDeaths:22, totalDeaths:66, rate:"2.35", coverage:"82%", cat:"Dogs", icon:"dog", text:"Domestic dog encounters hold the highest implied probability of fatal interactions across local residential zones."},
+  {state:"Wisconsin", culprit:"Bees, Wasps & Hornets", catDeaths:21, totalDeaths:57, rate:"1.39", coverage:"58%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Severe allergic reactions from common back-porch or field hornets outstrip rare wilderness wildlife incidents completely."},
+  {state:"Washington", culprit:"Bees, Wasps & Hornets", catDeaths:15, totalDeaths:57, rate:"1.05", coverage:"89%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"While wilderness layers hold cougars and black bears, the overwhelming volume of medical fatalities stems from insects."},
+  {state:"Indiana", culprit:"Dogs", catDeaths:14, totalDeaths:53, rate:"1.11", coverage:"68%", cat:"Dogs", icon:"dog", text:"Proximity to household pets governs the leading tracking numbers, outstripping environmental wildlife logs."},
+  {state:"Virginia", culprit:"Other mammals (livestock)", catDeaths:15, totalDeaths:53, rate:"0.88", coverage:"77%", cat:"Livestock Mammals", icon:"cow", text:"Agricultural handling accidents involving cattle represent the leading non-canine source of local animal mortality metrics."},
+  {state:"Alabama", culprit:"Dogs", catDeaths:19, totalDeaths:50, rate:"1.42", coverage:"38%", cat:"Dogs", icon:"dog", text:"State tracking metrics position residential dog encounters clear of deep-woods native wildlife factors."},
+  {state:"Kentucky", culprit:"Dogs", catDeaths:11, totalDeaths:48, rate:"1.52", coverage:"23%", cat:"Dogs", icon:"dog", text:"Domestic animal interactions account for the leading share of local public health data points."},
+  {state:"Colorado", culprit:"Horses (riding falls)", catDeaths:17, totalDeaths:47, rate:"1.15", coverage:"66%", cat:"Horses (Riding Falls)", icon:"horse", text:"Recreational and trail trailway equestrian falls or crushing injuries pace the board ahead of large mountain predators."},
+  {state:"Louisiana", culprit:"Dogs", catDeaths:12, totalDeaths:45, rate:"1.39", coverage:"53%", cat:"Dogs", icon:"dog", text:"State health tracking charts domestic dog encounters ahead of marshland or bayou apex longshots like alligators."},
+  {state:"Minnesota", culprit:"Other mammals (livestock)", catDeaths:13, totalDeaths:45, rate:"1.13", coverage:"58%", cat:"Livestock Mammals", icon:"cow", text:"Dairy operations and cattle handling lines generate regular baseline exposure hazards for local agricultural workers."},
+  {state:"New Mexico", culprit:"Other mammals (livestock)", catDeaths:15, totalDeaths:44, rate:"2.98", coverage:"89%", cat:"Livestock Mammals", icon:"cow", text:"Vast open ranches and agricultural footprints make large livestock handling the primary risk vector in the state."},
+  {state:"Arkansas", culprit:"Dogs", catDeaths:12, totalDeaths:43, rate:"2.02", coverage:"56%", cat:"Dogs", icon:"dog", text:"Human interaction with domestic animal networks leads the local database over forest wildlife alternatives."},
+  {state:"South Carolina", culprit:"Dogs", catDeaths:13, totalDeaths:41, rate:"1.11", coverage:"32%", cat:"Dogs", icon:"dog", text:"Residential pet proximity accounts for the primary share of statewide animal-related critical logs."},
+  {state:"Mississippi", culprit:"Bees, Wasps & Hornets", catDeaths:14, totalDeaths:38, rate:"1.84", coverage:"37%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Warm conditions and rural outdoor exposure place stinging swarms at the top of the statewide risk index."},
+  {state:"Oregon", culprit:"Horses (riding falls)", catDeaths:11, totalDeaths:37, rate:"1.25", coverage:"59%", cat:"Horses (Riding Falls)", icon:"horse", text:"Equestrian sports and high trailway usage drive falls and crushing accidents to the apex of tracking data."},
+  {state:"Idaho", culprit:"Other mammals (livestock)", catDeaths:10, totalDeaths:30, rate:"2.28", coverage:"33%", cat:"Livestock Mammals", icon:"cow", text:"Confined sorting lanes and close handling work with heavy cattle generate persistent occupational blunt-force risks."},
+  {state:"Utah", culprit:"Insufficient data", catDeaths:0, totalDeaths:29, rate:"1.25", coverage:"0%", cat:"Insufficient Data", icon:null, text:"CDC data suppression rules apply to fields tracking fewer than 10 deaths. Projected models tilt heavily to livestock/dogs."},
+  {state:"Montana", culprit:"Other mammals (livestock)", catDeaths:11, totalDeaths:28, rate:"3.63", coverage:"39%", cat:"Livestock Mammals", icon:"cow", text:"While grizzly country captures attention, handling 1,500-lb beef assets in pastures drives the true per-capita volatility here."},
+  {state:"Iowa", culprit:"Insufficient data", catDeaths:0, totalDeaths:28, rate:"1.25", coverage:"0%", cat:"Insufficient Data", icon:null, text:"Suppressed localized tracking blocks apply. Structural patterns heavily mimic adjacent agricultural livestock hubs."},
+  {state:"Maryland", culprit:"Bees, Wasps & Hornets", catDeaths:10, totalDeaths:28, rate:"0.65", coverage:"36%", cat:"Bees, Wasps & Hornets", icon:"insect", text:"Sprawl networks intercepting natural areas lock stinging insects at the head of clinical anaphylaxis logs."},
+  {state:"West Virginia", culprit:"Insufficient data", catDeaths:0, totalDeaths:24, rate:"1.92", coverage:"0%", cat:"Insufficient Data", icon:null, text:"Suppressed data layers hide precise counts, though regional profiles favor Appalachian stinging insect grids."},
+  {state:"Nevada", culprit:"Insufficient data", catDeaths:0, totalDeaths:24, rate:"1.09", coverage:"0%", cat:"Insufficient Data", icon:null, text:"Data suppression locks cells, though desert insect clustering near irrigation grids marks the likely primary driver."},
+  {state:"Kansas", culprit:"Insufficient data", catDeaths:0, totalDeaths:23, rate:"1.12", coverage:"0%", cat:"Insufficient Data", icon:null, text:"Suppressed metrics mask the baseline, which sits embedded in high-volume commercial feedlot operations."},
+  {state:"Massachusetts", culprit:"Insufficient data", catDeaths:0, totalDeaths:21, rate:"0.43", coverage:"0%", cat:"Insufficient Data", icon:null, text:"Extreme urban development leaves Massachusetts statistically safe, with anomalies leaning toward household insects."},
+  {state:"New Jersey", culprit:"Insufficient data", catDeaths:0, totalDeaths:21
