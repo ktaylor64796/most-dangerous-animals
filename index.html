@@ -77,6 +77,15 @@
     }
     svg { width: 100%; height: auto; display: block; position: relative; z-index: 1; }
 
+    /* STATE LAYER INTERACTION HOVERS */
+    .state {
+      cursor: pointer;
+    }
+
+    .hover-outline {
+      transition: stroke-opacity 0.15s ease;
+    }
+
     /* SVG ANIMAL ICON RENDER SYSTEM */
     .map-vector-icon {
       fill: #02060d;
@@ -311,7 +320,6 @@
   <div id="tt" class="tooltip"></div>
 
 <script>
-// Window-level self assignment to automatically calculate embed paths inside production scripts
 const CANONICAL_URL = window.location.href;
 
 // Categorical palette assignments reflecting exact workbook variables
@@ -381,12 +389,6 @@ const STATE_ROWS = [
 ];
 
 const ROW_BY_STATE = Object.fromEntries(STATE_ROWS.map(r => [r.state, r]));
-
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
-}
 
 // Draw the category pill headers dynamically
 const counts = {};
@@ -536,5 +538,3 @@ embedToggle.addEventListener("click", () => {
 </script>
 </body>
 </html>
-
-```
