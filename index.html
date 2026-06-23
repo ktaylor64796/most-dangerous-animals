@@ -26,10 +26,10 @@
 
     * { box-sizing: border-box; }
     
-    /* FIX: Ensure the base viewport allows for clean, safe iframe overflows without cutting off the canvas */
+    /* FIX: Shifted height from rigid limits to a min-height standard to enforce natural layout scroll containers */
     html, body { 
       min-height: 100%; 
-      overflow-y: auto; 
+      overflow-y: auto !important; 
       scrollbar-width: thin; 
       scrollbar-color: rgba(255,255,255,0.2) transparent;
     }
@@ -412,7 +412,6 @@ function esc(s){
   }[c]));
 }
 
-// Draw the category pill headers dynamically
 const counts = {};
 STATE_ROWS.forEach(r => counts[r.cat] = (counts[r.cat]||0)+1);
 const pillOrder = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([cat, n]) => ({cat, n}));
@@ -421,7 +420,6 @@ document.getElementById("pills").innerHTML = pillOrder.map(p => {
   return `<div class="pill"><span class="sw" style="background:${color}"></span>${esc(p.cat)} (${p.n})</div>`;
 }).join("");
 
-// Draw the multi-column layout table directly below the map wrapper
 const lists = document.getElementById("lists");
 const sorted = STATE_ROWS.slice().sort((a,b)=>a.state.localeCompare(b.state));
 const COLS = 4;
@@ -440,7 +438,6 @@ for(let i=0;i<COLS;i++){
   lists.appendChild(col);
 }
 
-// Initialize D3 Rendering engine parsing TopoJSON layout shapes natively
 const svg = d3.select("#map");
 const tooltip = d3.select("#tt");
 const width = 975, height = 610;
@@ -475,7 +472,6 @@ function showTip(event, stateName, data){
 
 function hideTip(){ tooltip.style("display","none"); }
 
-// Safe, clean runtime path construction matching valid CDN channels on GitHub Pages
 d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
   const states = topojson.feature(us, us.objects.states).features;
   const g = svg.attr("viewBox", `0 0 ${width} ${height}`).append("g");
@@ -539,13 +535,12 @@ d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
 
 }).catch(err => console.error("US TopoJSON framework initialization failure:", err));
 
-/* =============================  Embed code generation module ============================= */
 const embedToggle = document.getElementById("embedToggle");
 const embedPanel  = document.getElementById("embedPanel");
 const embedCode   = document.getElementById("embedCode");
 
-// FIX: Increased target height value to 1550px to cleanly present content without clip windows across standard desktop sizes.
-embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1550"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  loading="lazy">\n</iframe>`;
+// FIX: Set iframe code height securely to 1600px and explicitly configure scrolling parameters to prevent clipping across platforms.
+embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1600"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  scrolling="auto"\n  loading="lazy">\n</iframe>`;
 
 embedToggle.addEventListener("click", () => {
   const hidden = embedPanel.hasAttribute("hidden");
