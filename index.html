@@ -26,7 +26,6 @@
 
     * { box-sizing: border-box; }
     
-    /* FIX: Shifted height from rigid limits to a min-height standard to enforce natural layout scroll containers */
     html, body { 
       min-height: 100%; 
       overflow-y: auto !important; 
@@ -332,227 +331,228 @@
   <div id="tt" class="tooltip"></div>
 
 <script>
-const CANONICAL_URL = window.location.href;
+// FIX: Force runtime loop dependencies to wait on secure external CDN scripts before compiling the features
+document.addEventListener("DOMContentLoaded", () => {
+  const CANONICAL_URL = window.location.href;
 
-const CATEGORY_COLOR = {
-  'Bees, Wasps & Hornets': '#1d3557', // Deep Blue
-  'Dogs':                  '#457b9d', // Slate Blue
-  'Livestock Mammals':     '#e63946', // Alert Red
-  'Horses (Riding Falls)': '#a8dadc', // Light Blue
-  'Marine Animals':        "#14b8a6"  // Teal Blue
-};
+  const CATEGORY_COLOR = {
+    'Bees, Wasps & Hornets': '#1d3557', // Deep Blue
+    'Dogs':                  '#457b9d', // Slate Blue
+    'Livestock Mammals':     '#e63946', // Alert Red
+    'Horses (Riding Falls)': '#a8dadc', // Light Blue
+    'Marine Animals':        "#14b8a6"  // Teal Blue
+  };
 
-// DISTINCT standalone body outlines
-const SVG_PATH_DICTIONARY = {
-  insect: "M19,2C19,2 17,3 15,3C13,3 12,4 12,6C10.5,5.5 8.5,6 7.5,7.5C7,7 6.5,7 6,7.5C5.5,8 5.5,9 6,9.5C4.5,10 3.5,11.5 4,13.5C4.5,15.5 7,16 9,15C9.5,16.5 11,17.5 13,17.5C15,17.5 16.5,16 16.5,14C18.5,13.5 19.5,11.5 19,9.5C18.5,7.5 17,7 15.5,7.5C15.5,5.5 16.5,4.5 18.5,4.5C18.5,4.5 20,3.5 19,2M12,8C13,8 14.5,9.5 14,11.5C13.5,13.5 11,14 10,13C9,12 9.5,9.5 10.5,8.5C11,8 11.5,8 12,8M6,12.5C6,12.5 5,14 6.5,14.5C8,15 8,13 8,12.5C7,12.5 6.5,12 6,12.5Z",
-  dog:    "M21,11L19,8L17,9L15,6L13,6L12,8L8,8L6,6L3,7L4,10L3,12L5,13L5,19L7,19L8,15L12,15L13,19L15,19L16,13L19,14L22,12L21,11Z",
-  cow:    "M23,10L20,7L18,8L17,6L13,6L12,8L4,8L2,11L3,13L5,13L5,19L8,19L8,15L14,15L14,19L17,19L18,13L21,13L23,11L23,10Z",
-  horse:  "M22,5L19,2L16,5L14,4L11,6L12,9L8,11L4,9L2,11L5,14L5,21L8,21L9,16L14,16L15,21L18,21L18,13L21,11L22,7L22,5Z",
-  shark:  "M2,13C4,12 8,10 12,11C15,11.5 18,9 20,6C21,8 22,11 23,12C21,13 19,15 18,18C17,15 15,14 13,14C9.5,14 5,16 2,13Z"
-};
+  const SVG_PATH_DICTIONARY = {
+    insect: "M19,2C19,2 17,3 15,3C13,3 12,4 12,6C10.5,5.5 8.5,6 7.5,7.5C7,7 6.5,7 6,7.5C5.5,8 5.5,9 6,9.5C4.5,10 3.5,11.5 4,13.5C4.5,15.5 7,16 9,15C9.5,16.5 11,17.5 13,17.5C15,17.5 16.5,16 16.5,14C18.5,13.5 19.5,11.5 19,9.5C18.5,7.5 17,7 15.5,7.5C15.5,5.5 16.5,4.5 18.5,4.5C18.5,4.5 20,3.5 19,2M12,8C13,8 14.5,9.5 14,11.5C13.5,13.5 11,14 10,13C9,12 9.5,9.5 10.5,8.5C11,8 11.5,8 12,8M6,12.5C6,12.5 5,14 6.5,14.5C8,15 8,13 8,12.5C7,12.5 6.5,12 6,12.5Z",
+    dog:    "M21,11L19,8L17,9L15,6L13,6L12,8L8,8L6,6L3,7L4,10L3,12L5,13L5,19L7,19L8,15L12,15L13,19L15,19L16,13L19,14L22,12L21,11Z",
+    cow:    "M23,10L20,7L18,8L17,6L13,6L12,8L4,8L2,11L3,13L5,13L5,19L8,19L8,15L14,15L14,19L17,19L18,13L21,13L23,11L23,10Z",
+    horse:  "M22,5L19,2L16,5L14,4L11,6L12,9L8,11L4,9L2,11L5,14L5,21L8,21L9,16L14,16L15,21L18,21L18,13L21,11L22,7L22,5Z",
+    shark:  "M2,13C4,12 8,10 12,11C15,11.5 18,9 20,6C21,8 22,11 23,12C21,13 19,15 18,18C17,15 15,14 13,14C9.5,14 5,16 2,13Z"
+  };
 
-const STATE_ROWS = [
-  {state:"Montana", culprit:"Other Mammals (Livestock)", totalDeaths:28, rate:"3.63", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Pasture infrastructure safety limitations make large cattle handling accidents the dominant threat in the state."},
-  {state:"New Mexico", culprit:"Other Mammals (Livestock)", totalDeaths:44, rate:"2.98", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Vast open ranges and regular agricultural interactions push livestock safety metrics into the top tier."},
-  {state:"Wyoming", culprit:"Other Mammals (Livestock)", totalDeaths:12, rate:"2.95", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed local data pools filled by regional modeling; extensive open pasture acreage highlights ranching hazards."},
-  {state:"South Dakota", culprit:"Other Mammals (Livestock)", totalDeaths:15, rate:"2.38", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Low raw values trigger privacy shields, but underlying agricultural data tracks livestock as the main threat."},
-  {state:"Oklahoma", culprit:"Domestic Dogs", totalDeaths:66, rate:"2.35", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic pet interactions lead across municipal and residential environments by a wide margin."},
-  {state:"Idaho", culprit:"Other Mammals (Livestock)", totalDeaths:30, rate:"2.28", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Close-range operations in confined corrals with heavy beef livestock drive the physical hazard charts."},
-  {state:"Alaska", culprit:"Domestic Dogs", totalDeaths:11, rate:"2.14", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed data grids mask the baseline; local patterns track residential dog encounters ahead of wilderness options."},
-  {state:"Arkansas", culprit:"Domestic Dogs", totalDeaths:43, rate:"2.02", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity to common residential environments governs the leading metrics over forest fauna alternatives."},
-  {state:"West Virginia", culprit:"Bees, Wasps & Hornets", totalDeaths:24, rate:"1.92", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low sample counts prompt structural masking, pointing toward regional Appalachian stinging insect profiles."},
-  {state:"Mississippi", culprit:"Bees, Wasps & Hornets", totalDeaths:38, rate:"1.84", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Warm climate conditions and dense outdoor exposure timelines push swarming insects to the top of the board."},
-  {state:"Missouri", culprit:"Other Mammals (Livestock)", totalDeaths:69, rate:"1.60", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Broad farm and pasture grids see regular interaction loops where livestock crush injuries claim high metrics."},
-  {state:"Tennessee", culprit:"Domestic Dogs", totalDeaths:76, rate:"1.56", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Human proximity to household dog grids anchors the core parameters for regional critical health records."},
-  {state:"Kentucky", culprit:"Domestic Dogs", totalDeaths:48, rate:"1.52", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic animal interactions hold the single highest probability share of local public injury logs."},
-  {state:"Alabama", culprit:"Domestic Dogs", totalDeaths:50, rate:"1.42", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"State parameters focus risks securely around suburban settings, clear of deep wilderness factors."},
-  {state:"Arizona", culprit:"Domestic Dogs", totalDeaths:72, rate:"1.40", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Suburban parameters keep household dog vectors running clear of native desert vipers in trauma metrics."},
-  {state:"Texas", culprit:"Bees, Wasps & Hornets", totalDeaths:291, rate:"1.40", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Backyard stinging insects cause nearly a third of all tracked animal fatalities within the state lines."},
-  {state:"Louisiana", culprit:"Domestic Dogs", totalDeaths:45, rate:"1.39", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"State registries outline dog encounters safely clear of swamp hazards like alligators."},
-  {state:"Wisconsin", culprit:"Bees, Wasps & Hornets", totalDeaths:57, rate:"1.39", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Severe allergic reactions from common field or patio hornet swarms completely lead native data."},
-  {state:"New Hampshire", culprit:"Bees, Wasps & Hornets", totalDeaths:13, rate:"1.34", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low total metrics hide details, but regional forested trends place stinging insects at the head of local lines."},
-  {state:"Iowa", culprit:"Other Mammals (Livestock)", totalDeaths:28, rate:"1.25", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppression thresholds apply. Regional modeling highlights heavy agricultural cattle operation zones."},
-  {state:"Oregon", culprit:"Horses (Riding Falls)", totalDeaths:37, rate:"1.25", cat:"Horses (Riding Falls)", status:"Confirmed Baseline", icon:"horse", text:"Recreational and wilderness trailway equestrian falls pace the board ahead of large forest predators."},
-  {state:"Utah", culprit:"Domestic Dogs", totalDeaths:29, rate:"1.25", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed metrics mask baseline; high-density residential hubs align tightly with domestic pet events."},
-  {state:"Ohio", culprit:"Bees, Wasps & Hornets", totalDeaths:101, rate:"1.23", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Densely configured suburban landscapes place common backyard stinging insects out front."},
-  {state:"Colorado", culprit:"Horses (Riding Falls)", totalDeaths:47, rate:"1.15", cat:"Horses (Riding Falls)", status:"Confirmed Baseline", icon:"horse", text:"Equestrian sport training and trailway fall indices capture the highest risk margin ahead of wild predators."},
-  {state:"North Carolina", culprit:"Bees, Wasps & Hornets", totalDeaths:86, rate:"1.15", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"High environmental exposure and seasonal warmth position swarming vectors as the leading local trend."},
-  {state:"Minnesota", culprit:"Other Mammals (Livestock)", totalDeaths:45, rate:"1.13", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Dairy installations and farming configurations bring baseline crush or kick exposures to field workforces."},
-  {state:"Kansas", culprit:"Other Mammals (Livestock)", totalDeaths:23, rate:"1.12", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed metrics mask baseline; deeply embedded in heavy industrial-scale commercial feedlot grids."},
-  {state:"South Carolina", culprit:"Domestic Dogs", totalDeaths:41, rate:"1.11", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Residential pet interactions claim the primary share of local non-wildlife critical event records."},
-  {state:"Indiana", culprit:"Domestic Dogs", totalDeaths:53, rate:"1.11", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity to household pets controls the leading numbers, running clear of wild outdoor entries."},
-  {state:"Nevada", culprit:"Bees, Wasps & Hornets", totalDeaths:24, rate:"1.09", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Data suppression holds cells, though desert insect clustering near irrigation channels marks the main threat."},
-  {state:"Michigan", culprit:"Bees, Wasps & Hornets", totalDeaths:75, rate:"1.07", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Backyard sting emergency cases comfortably run ahead of larger mammalian wildlife entries over time."},
-  {state:"Washington", culprit:"Bees, Wasps & Hornets", totalDeaths:57, rate:"1.05", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"While wilderness layers hold cougars and black bears, total medical fatalities are ruled by insects."},
-  {state:"Nebraska", culprit:"Other Mammals (Livestock)", totalDeaths:14, rate:"1.02", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Individual cells are hidden, but extensive commercial beef networks dictate the true underlying risk factor."},
-  {state:"Hawaii", culprit:"Marine Animals (Sharks)", totalDeaths:10, rate:"1.00", cat:"Marine Animals", status:"Projected Estimate", icon:"shark", text:"Unique oceanic recreation exposure shifts metrics to marine environments over low baseline land parameters."},
-  {state:"Georgia", culprit:"Bees, Wasps & Hornets", totalDeaths:75, rate:"0.99", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"High heat cycles and suburban green space expansion trigger high human-hymenoptera contact rates."},
-  {state:"Pennsylvania", culprit:"Bees, Wasps & Hornets", totalDeaths:89, rate:"0.98", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Wooded valleys create immediate human-hive contact lines during local property clearing and trail maintenance."},
-  {state:"Florida", culprit:"Domestic Dogs", totalDeaths:141, rate:"0.91", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic animal interactions lead across municipal and residential environments over predatory longshots."},
-  {state:"Virginia", culprit:"Other Mammals (Livestock)", totalDeaths:53, rate:"0.88", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Agricultural handling accidents involving heavy cattle represent the top non-canine source of local metrics."},
-  {state:"Illinois", culprit:"Domestic Dogs", totalDeaths:74, rate:"0.84", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Suburban population parameters isolate domestic pet incidents well clear of remote wilderness possibilities."},
-  {state:"California", culprit:"Domestic Dogs", totalDeaths:200, rate:"0.73", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity in dense suburban and municipal environments keeps domestic dogs locked at the top of the vector mapping."},
-  {state:"Connecticut", culprit:"Bees, Wasps & Hornets", totalDeaths:18, rate:"0.71", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Suppressed due to small totals; standard suburban yard parameters edge out wild predator variables completely."},
-  {state:"Maryland", culprit:"Bees, Wasps & Hornets", totalDeaths:28, rate:"0.65", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Sprawl boundaries overlapping natural areas secure stinging insects at the head of critical shock logs."},
-  {state:"New York", culprit:"Bees, Wasps & Hornets", totalDeaths:80, rate:"0.58", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Upstate timber spaces overlapping with park zones generate the state's main allergy threat."},
-  {state:"Massachusetts", culprit:"Bees, Wasps & Hornets", totalDeaths:21, rate:"0.43", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"High regional urbanization keeps total risks minimal, with anomalies resting within backyard insect factors."},
-  {state:"New Jersey", culprit:"Bees, Wasps & Hornets", totalDeaths:21, rate:"0.33", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"The lowest animal per-capita risk profile in America; highly built-up spaces limit issues to home wasp nests."},
-  {state:"Delaware", culprit:"Domestic Dogs", totalDeaths:2, rate:"0.14", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed metrics due to exceptionally small raw totals; matches small, high-density mid-Atlantic coastal setups."},
-  {state:"Maine", culprit:"Bees, Wasps & Hornets", totalDeaths:3, rate:"0.12", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Suppressed baseline cells filled by regional patterns matching heavily forested Northern New England lines."},
-  {state:"North Dakota", culprit:"Other Mammals (Livestock)", totalDeaths:4, rate:"0.22", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed local data pools; wide-open ranching land matrices scale up livestock handling hazards over wild alternatives."},
-  {state:"Rhode Island", culprit:"Bees, Wasps & Hornets", totalDeaths:1, rate:"0.05", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Small state boundaries limit large wild habitat footprints, leaving everyday backyard insects as the top structural risk."},
-  {state:"Vermont", culprit:"Bees, Wasps & Hornets", totalDeaths:2, rate:"0.10", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low human tracking parameters yield low raw results, following standard rural Northeast insect exposure patterns."}
-];
+  const STATE_ROWS = [
+    {state:"Montana", culprit:"Other Mammals (Livestock)", totalDeaths:28, rate:"3.63", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Pasture infrastructure safety limitations make large cattle handling accidents the dominant threat in the state."},
+    {state:"New Mexico", culprit:"Other Mammals (Livestock)", totalDeaths:44, rate:"2.98", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Vast open ranges and regular agricultural interactions push livestock safety metrics into the top tier."},
+    {state:"Wyoming", culprit:"Other Mammals (Livestock)", totalDeaths:12, rate:"2.95", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed local data pools filled by regional modeling; extensive open pasture acreage highlights ranching hazards."},
+    {state:"South Dakota", culprit:"Other Mammals (Livestock)", totalDeaths:15, rate:"2.38", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Low raw values trigger privacy shields, but underlying agricultural data tracks livestock as the main threat."},
+    {state:"Oklahoma", culprit:"Domestic Dogs", totalDeaths:66, rate:"2.35", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic pet interactions lead across municipal and residential environments by a wide margin."},
+    {state:"Idaho", culprit:"Other Mammals (Livestock)", totalDeaths:30, rate:"2.28", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Close-range operations in confined corrals with heavy beef livestock drive the physical hazard charts."},
+    {state:"Alaska", culprit:"Domestic Dogs", totalDeaths:11, rate:"2.14", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed data grids mask the baseline; local patterns track residential dog encounters ahead of wilderness options."},
+    {state:"Arkansas", culprit:"Domestic Dogs", totalDeaths:43, rate:"2.02", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity to common residential environments governs the leading metrics over forest fauna alternatives."},
+    {state:"West Virginia", culprit:"Bees, Wasps & Hornets", totalDeaths:24, rate:"1.92", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low sample counts prompt structural masking, pointing toward regional Appalachian stinging insect profiles."},
+    {state:"Mississippi", culprit:"Bees, Wasps & Hornets", totalDeaths:38, rate:"1.84", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Warm climate conditions and dense outdoor exposure timelines push swarming insects to the top of the board."},
+    {state:"Missouri", culprit:"Other Mammals (Livestock)", totalDeaths:69, rate:"1.60", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Broad farm and pasture grids see regular interaction loops where livestock crush injuries claim high metrics."},
+    {state:"Tennessee", culprit:"Domestic Dogs", totalDeaths:76, rate:"1.56", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Human proximity to household dog grids anchors the core parameters for regional critical health records."},
+    {state:"Kentucky", culprit:"Domestic Dogs", totalDeaths:48, rate:"1.52", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic animal interactions hold the single highest probability share of local public injury logs."},
+    {state:"Alabama", culprit:"Domestic Dogs", totalDeaths:50, rate:"1.42", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"State parameters focus risks securely around suburban settings, clear of deep wilderness factors."},
+    {state:"Arizona", culprit:"Domestic Dogs", totalDeaths:72, rate:"1.40", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Suburban parameters keep household dog vectors running clear of native desert vipers in trauma metrics."},
+    {state:"Texas", culprit:"Bees, Wasps & Hornets", totalDeaths:291, rate:"1.40", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Backyard stinging insects cause nearly a third of all tracked animal fatalities within the state lines."},
+    {state:"Louisiana", culprit:"Domestic Dogs", totalDeaths:45, rate:"1.39", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"State registries outline dog encounters safely clear of swamp hazards like alligators."},
+    {state:"Wisconsin", culprit:"Bees, Wasps & Hornets", totalDeaths:57, rate:"1.39", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Severe allergic reactions from common field or patio hornet swarms completely lead native data."},
+    {state:"New Hampshire", culprit:"Bees, Wasps & Hornets", totalDeaths:13, rate:"1.34", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low total metrics hide details, but regional forested trends place stinging insects at the head of local lines."},
+    {state:"Iowa", culprit:"Other Mammals (Livestock)", totalDeaths:28, rate:"1.25", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppression thresholds apply. Regional modeling highlights heavy agricultural cattle operation zones."},
+    {state:"Oregon", culprit:"Horses (Riding Falls)", totalDeaths:37, rate:"1.25", cat:"Horses (Riding Falls)", status:"Confirmed Baseline", icon:"horse", text:"Recreational and wilderness trailway equestrian falls pace the board ahead of large forest predators."},
+    {state:"Utah", culprit:"Domestic Dogs", totalDeaths:29, rate:"1.25", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed metrics mask baseline; high-density residential hubs align tightly with domestic pet events."},
+    {state:"Ohio", culprit:"Bees, Wasps & Hornets", totalDeaths:101, rate:"1.23", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Densely configured suburban landscapes place common backyard stinging insects out front."},
+    {state:"Colorado", culprit:"Horses (Riding Falls)", totalDeaths:47, rate:"1.15", cat:"Horses (Riding Falls)", status:"Confirmed Baseline", icon:"horse", text:"Equestrian sport training and trailway fall indices capture the highest risk margin ahead of wild predators."},
+    {state:"North Carolina", culprit:"Bees, Wasps & Hornets", totalDeaths:86, rate:"1.15", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"High environmental exposure and seasonal warmth position swarming vectors as the leading local trend."},
+    {state:"Minnesota", culprit:"Other Mammals (Livestock)", totalDeaths:45, rate:"1.13", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Dairy installations and farming configurations bring baseline crush or kick exposures to field workforces."},
+    {state:"Kansas", culprit:"Other Mammals (Livestock)", totalDeaths:23, rate:"1.12", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed metrics mask baseline; deeply embedded in heavy industrial-scale commercial feedlot grids."},
+    {state:"South Carolina", culprit:"Domestic Dogs", totalDeaths:41, rate:"1.11", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Residential pet interactions claim the primary share of local non-wildlife critical event records."},
+    {state:"Indiana", culprit:"Domestic Dogs", totalDeaths:53, rate:"1.11", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity to household pets controls the leading numbers, running clear of wild outdoor entries."},
+    {state:"Nevada", culprit:"Bees, Wasps & Hornets", totalDeaths:24, rate:"1.09", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Data suppression holds cells, though desert insect clustering near irrigation channels marks the main threat."},
+    {state:"Michigan", culprit:"Bees, Wasps & Hornets", totalDeaths:75, rate:"1.07", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Backyard sting emergency cases comfortably run ahead of larger mammalian wildlife entries over time."},
+    {state:"Washington", culprit:"Bees, Wasps & Hornets", totalDeaths:57, rate:"1.05", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"While wilderness layers hold cougars and black bears, total medical fatalities are ruled by insects."},
+    {state:"Nebraska", culprit:"Other Mammals (Livestock)", totalDeaths:14, rate:"1.02", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Individual cells are hidden, but extensive commercial beef networks dictate the true underlying risk factor."},
+    {state:"Hawaii", culprit:"Marine Animals (Sharks)", totalDeaths:10, rate:"1.00", cat:"Marine Animals", status:"Projected Estimate", icon:"shark", text:"Unique oceanic recreation exposure shifts metrics to marine environments over low baseline land parameters."},
+    {state:"Georgia", culprit:"Bees, Wasps & Hornets", totalDeaths:75, rate:"0.99", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"High heat cycles and suburban green space expansion trigger high human-hymenoptera contact rates."},
+    {state:"Pennsylvania", culprit:"Bees, Wasps & Hornets", totalDeaths:89, rate:"0.98", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Wooded valleys create immediate human-hive contact lines during local property clearing and trail maintenance."},
+    {state:"Florida", culprit:"Domestic Dogs", totalDeaths:141, rate:"0.91", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Domestic animal interactions lead across municipal and residential environments over predatory longshots."},
+    {state:"Virginia", culprit:"Other Mammals (Livestock)", totalDeaths:53, rate:"0.88", cat:"Livestock Mammals", status:"Confirmed Baseline", icon:"cow", text:"Agricultural handling accidents involving heavy cattle represent the top non-canine source of local metrics."},
+    {state:"Illinois", culprit:"Domestic Dogs", totalDeaths:74, rate:"0.84", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Suburban population parameters isolate domestic pet incidents well clear of remote wilderness possibilities."},
+    {state:"California", culprit:"Domestic Dogs", totalDeaths:200, rate:"0.73", cat:"Dogs", status:"Confirmed Baseline", icon:"dog", text:"Proximity in dense suburban and municipal environments keeps domestic dogs locked at the top of the vector mapping."},
+    {state:"Connecticut", culprit:"Bees, Wasps & Hornets", totalDeaths:18, rate:"0.71", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Suppressed due to small totals; standard suburban yard parameters edge out wild predator variables completely."},
+    {state:"Maryland", culprit:"Bees, Wasps & Hornets", totalDeaths:28, rate:"0.65", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Sprawl boundaries overlapping natural areas secure stinging insects at the head of critical shock logs."},
+    {state:"New York", culprit:"Bees, Wasps & Hornets", totalDeaths:80, rate:"0.58", cat:"Bees, Wasps & Hornets", status:"Confirmed Baseline", icon:"insect", text:"Upstate timber spaces overlapping with park zones generate the state's main allergy threat."},
+    {state:"Massachusetts", culprit:"Bees, Wasps & Hornets", totalDeaths:21, rate:"0.43", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"High regional urbanization keeps total risks minimal, with anomalies resting within backyard insect factors."},
+    {state:"New Jersey", culprit:"Bees, Wasps & Hornets", totalDeaths:21, rate:"0.33", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"The lowest animal per-capita risk profile in America; highly built-up spaces limit issues to home wasp nests."},
+    {state:"Delaware", culprit:"Domestic Dogs", totalDeaths:2, rate:"0.14", cat:"Dogs", status:"Projected Estimate", icon:"dog", text:"Suppressed metrics due to exceptionally small raw totals; matches small, high-density mid-Atlantic coastal setups."},
+    {state:"Maine", culprit:"Bees, Wasps & Hornets", totalDeaths:3, rate:"0.12", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Suppressed baseline cells filled by regional patterns matching heavily forested Northern New England lines."},
+    {state:"North Dakota", culprit:"Other Mammals (Livestock)", totalDeaths:4, rate:"0.22", cat:"Livestock Mammals", status:"Projected Estimate", icon:"cow", text:"Suppressed local data pools; wide-open ranching land matrices scale up livestock handling hazards over wild alternatives."},
+    {state:"Rhode Island", culprit:"Bees, Wasps & Hornets", totalDeaths:1, rate:"0.05", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Small state boundaries limit large wild habitat footprints, leaving everyday backyard insects as the top structural risk."},
+    {state:"Vermont", culprit:"Bees, Wasps & Hornets", totalDeaths:2, rate:"0.10", cat:"Bees, Wasps & Hornets", status:"Projected Estimate", icon:"insect", text:"Low human tracking parameters yield low raw results, following standard rural Northeast insect exposure patterns."}
+  ];
 
-const ROW_BY_STATE = Object.fromEntries(STATE_ROWS.map(r => [r.state, r]));
+  const ROW_BY_STATE = Object.fromEntries(STATE_ROWS.map(r => [r.state, r]));
 
-function esc(s){
-  return String(s).replace(/[&<>"']/g, c => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
-}
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
 
-const counts = {};
-STATE_ROWS.forEach(r => counts[r.cat] = (counts[r.cat]||0)+1);
-const pillOrder = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([cat, n]) => ({cat, n}));
-document.getElementById("pills").innerHTML = pillOrder.map(p => {
-  const color = CATEGORY_COLOR[p.cat] || "#9aa6bf";
-  return `<div class="pill"><span class="sw" style="background:${color}"></span>${esc(p.cat)} (${p.n})</div>`;
-}).join("");
+  const counts = {};
+  STATE_ROWS.forEach(r => counts[r.cat] = (counts[r.cat]||0)+1);
+  const pillOrder = Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([cat, n]) => ({cat, n}));
+  document.getElementById("pills").innerHTML = pillOrder.map(p => {
+    const color = CATEGORY_COLOR[p.cat] || "#9aa6bf";
+    return `<div class="pill"><span class="sw" style="background:${color}"></span>${esc(p.cat)} (${p.n})</div>`;
+  }).join("");
 
-const lists = document.getElementById("lists");
-const sorted = STATE_ROWS.slice().sort((a,b)=>a.state.localeCompare(b.state));
-const COLS = 4;
-const perCol = Math.ceil(sorted.length / COLS);
+  const lists = document.getElementById("lists");
+  const sorted = STATE_ROWS.slice().sort((a,b)=>a.state.localeCompare(b.state));
+  const COLS = 4;
+  const perCol = Math.ceil(sorted.length / COLS);
 
-for(let i=0;i<COLS;i++){
-  const chunk = sorted.slice(i*perCol,(i+1)*perCol);
-  const col = document.createElement("div");
-  col.className = "col";
-  col.innerHTML = chunk.map(r => `
-    <div class="row">
-      <div class="name" title="${esc(r.state)}">${esc(r.state)}</div>
-      <div class="val">${esc(r.culprit)}</div>
-    </div>
-  `).join("");
-  lists.appendChild(col);
-}
+  for(let i=0;i<COLS;i++){
+    const chunk = sorted.slice(i*perCol,(i+1)*perCol);
+    const col = document.createElement("div");
+    col.className = "col";
+    col.innerHTML = chunk.map(r => `
+      <div class="row">
+        <div class="name" title="${esc(r.state)}">${esc(r.state)}</div>
+        <div class="val">${esc(r.culprit)}</div>
+      </div>
+    `).join("");
+    lists.appendChild(col);
+  }
 
-const svg = d3.select("#map");
-const tooltip = d3.select("#tt");
-const width = 975, height = 610;
+  const svg = d3.select("#map");
+  const tooltip = d3.select("#tt");
+  const width = 975, height = 610;
 
-const projection = d3.geoAlbersUsa().scale(1300).translate([width/2, height/2]);
-const path = d3.geoPath(projection);
+  const projection = d3.geoAlbersUsa().scale(1300).translate([width/2, height/2]);
+  const path = d3.geoPath(projection);
 
-function placeTooltip(event){
-  const rect = tooltip.node().getBoundingClientRect();
-  const pad = 10;
-  let x = event.pageX + 14;
-  let y = event.pageY + 14;
-  if (x + rect.width > window.innerWidth - pad) x = window.innerWidth - rect.width - pad;
-  if (y + rect.height > window.innerHeight - pad) y = window.innerHeight - rect.height - pad;
-  tooltip.style("left", x+"px").style("top", y+"px");
-}
+  function placeTooltip(event){
+    const rect = tooltip.node().getBoundingClientRect();
+    const pad = 10;
+    let x = event.pageX + 14;
+    let y = event.pageY + 14;
+    if (x + rect.width > window.innerWidth - pad) x = window.innerWidth - rect.width - pad;
+    if (y + rect.height > window.innerHeight - pad) y = window.innerHeight - rect.height - pad;
+    tooltip.style("left", x+"px").style("top", y+"px");
+  }
 
-function showTip(event, stateName, data){
-  const tagColor = data.status === "Confirmed Baseline" ? "#10b981" : "#da291c";
-  tooltip
-    .style("display","block")
-    .html(
-      `<strong>${esc(stateName)} Risk Metrics</strong>
-       <div class="tooltip-stat">🚨 Most Dangerous Animal: ${esc(data.culprit)}</div>
-       <div>Total Tracked Animal Deaths: <b>${esc(data.totalDeaths)}</b></div>
-       <div>Annual Rate Per 1M: <b>${esc(data.rate)}</b></div>
-       <div class="status-tag" style="background:${tagColor}; color:#fff;">${esc(data.status)}</div>
-       <div class="narrative">${esc(data.text)}</div>`
-    );
-  placeTooltip(event);
-}
+  function showTip(event, stateName, data){
+    const tagColor = data.status === "Confirmed Baseline" ? "#10b981" : "#da291c";
+    tooltip
+      .style("display","block")
+      .html(
+        `<strong>${esc(stateName)} Risk Metrics</strong>
+         <div class="tooltip-stat">🚨 Most Dangerous Animal: ${esc(data.culprit)}</div>
+         <div>Total Tracked Animal Deaths: <b>${esc(data.totalDeaths)}</b></div>
+         <div>Annual Rate Per 1M: <b>${esc(data.rate)}</b></div>
+         <div class="status-tag" style="background:${tagColor}; color:#fff;">${esc(data.status)}</div>
+         <div class="narrative">${esc(data.text)}</div>`
+      );
+    placeTooltip(event);
+  }
 
-function hideTip(){ tooltip.style("display","none"); }
+  function hideTip(){ tooltip.style("display","none"); }
 
-d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
-  const states = topojson.feature(us, us.objects.states).features;
-  const g = svg.attr("viewBox", `0 0 ${width} ${height}`).append("g");
+  d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+    const states = topojson.feature(us, us.objects.states).features;
+    const g = svg.attr("viewBox", `0 0 ${width} ${height}`).append("g");
 
-  const layer = g.selectAll("g.state")
-    .data(states)
-    .join("g")
-    .attr("class","state");
+    const layer = g.selectAll("g.state")
+      .data(states)
+      .join("g")
+      .attr("class","state");
 
-  layer.append("path")
-    .attr("d", path)
-    .attr("fill", d => {
-      const row = ROW_BY_STATE[d.properties.name];
-      return row ? CATEGORY_COLOR[row.cat] : "#112440";
-    })
-    .attr("fill-opacity", 0.88);
+    layer.append("path")
+      .attr("d", path)
+      .attr("fill", d => {
+        const row = ROW_BY_STATE[d.properties.name];
+        return row ? CATEGORY_COLOR[row.cat] : "#112440";
+      })
+      .attr("fill-opacity", 0.88);
 
-  layer.append("path").attr("d", path)
-    .attr("fill","none").attr("stroke","#fff").attr("stroke-opacity",0.12)
-    .attr("stroke-width",1.0).attr("stroke-linejoin","round");
+    layer.append("path").attr("d", path)
+      .attr("fill","none").attr("stroke","#fff").attr("stroke-opacity",0.12)
+      .attr("stroke-width",1.0).attr("stroke-linejoin","round");
 
-  layer.append("path")
-    .attr("class","hover-outline")
-    .attr("d", path)
-    .attr("fill","none")
-    .attr("stroke","#da291c") 
-    .attr("stroke-opacity",0)
-    .attr("stroke-width",2.5)
-    .attr("pointer-events","none");
+    layer.append("path")
+      .attr("class","hover-outline")
+      .attr("d", path)
+      .attr("fill","none")
+      .attr("stroke","#da291c") 
+      .attr("stroke-opacity",0)
+      .attr("stroke-width",2.5)
+      .attr("pointer-events","none");
 
-  const gIcons = g.append("g");
+    const gIcons = g.append("g");
 
-  states.forEach(d => {
-    const name = d.properties.name;
-    const row = ROW_BY_STATE[name];
-    if(!row || !SVG_PATH_DICTIONARY[row.icon]) return;
+    states.forEach(d => {
+      const name = d.properties.name;
+      const row = ROW_BY_STATE[name];
+      if(!row || !SVG_PATH_DICTIONARY[row.icon]) return;
 
-    const centroid = path.centroid(d);
-    if (!centroid || isNaN(centroid[0]) || isNaN(centroid[1])) return;
+      const centroid = path.centroid(d);
+      if (!centroid || isNaN(centroid[0]) || isNaN(centroid[1])) return;
 
-    const [[x0,y0],[x1,y1]] = path.bounds(d);
-    const size = Math.max(18, Math.min(30, Math.min(x1-x0, y1-y0) * 0.58));
+      const [[x0,y0],[x1,y1]] = path.bounds(d);
+      const size = Math.max(18, Math.min(30, Math.min(x1-x0, y1-y0) * 0.58));
 
-    gIcons.append("path")
-      .attr("d", SVG_PATH_DICTIONARY[row.icon])
-      .attr("class", "map-vector-icon")
-      .attr("transform", `translate(${centroid[0] - size/2}, ${centroid[1] - size/2}) scale(${size / 24})`)
-      .style("pointer-events", "none");
-  });
-
-  layer.on("mousemove", (event, d) => {
-      const row = ROW_BY_STATE[d.properties.name];
-      if(!row){ hideTip(); return; }
-      showTip(event, d.properties.name, row);
-      d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", .95);
-    })
-    .on("mouseout", (event) => {
-      hideTip();
-      d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", 0);
+      gIcons.append("path")
+        .attr("d", SVG_PATH_DICTIONARY[row.icon])
+        .attr("class", "map-vector-icon")
+        .attr("transform", `translate(${centroid[0] - size/2}, ${centroid[1] - size/2}) scale(${size / 24})`)
+        .style("pointer-events", "none");
     });
 
-}).catch(err => console.error("US TopoJSON framework initialization failure:", err));
+    layer.on("mousemove", (event, d) => {
+        const row = ROW_BY_STATE[d.properties.name];
+        if(!row){ hideTip(); return; }
+        showTip(event, d.properties.name, row);
+        d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", .95);
+      })
+      .on("mouseout", (event) => {
+        hideTip();
+        d3.select(event.currentTarget).select(".hover-outline").attr("stroke-opacity", 0);
+      });
 
-const embedToggle = document.getElementById("embedToggle");
-const embedPanel  = document.getElementById("embedPanel");
-const embedCode   = document.getElementById("embedCode");
+  }).catch(err => console.error("US TopoJSON framework initialization failure:", err));
 
-// FIX: Set iframe code height securely to 1600px and explicitly configure scrolling parameters to prevent clipping across platforms.
-embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1600"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  scrolling="auto"\n  loading="lazy">\n</iframe>`;
+  const embedToggle = document.getElementById("embedToggle");
+  const embedPanel  = document.getElementById("embedPanel");
+  const embedCode   = document.getElementById("embedCode");
 
-embedToggle.addEventListener("click", () => {
-  const hidden = embedPanel.hasAttribute("hidden");
-  if(hidden){
-    embedPanel.removeAttribute("hidden");
-    embedToggle.setAttribute("aria-expanded","true");
-    embedToggle.textContent = "Hide embed code";
-  }else{
-    embedPanel.setAttribute("hidden","");
-    embedToggle.setAttribute("aria-expanded","false");
-    embedToggle.textContent = "Get embed code";
-  }
+  embedCode.value = `<iframe\n  src="${CANONICAL_URL}"\n  title="Most Dangerous Animal In Each State"\n  width="100%" height="1550"\n  style="border:0;overflow:hidden;display:block;width:100%;"\n  scrolling="auto"\n  loading="lazy">\n</iframe>`;
+
+  embedToggle.addEventListener("click", () => {
+    const hidden = embedPanel.hasAttribute("hidden");
+    if(hidden){
+      embedPanel.removeAttribute("hidden");
+      embedToggle.setAttribute("aria-expanded","true");
+      embedToggle.textContent = "Hide embed code";
+    }else{
+      embedPanel.setAttribute("hidden","");
+      embedToggle.setAttribute("aria-expanded","false");
+      embedToggle.textContent = "Get embed code";
+    }
+  });
 });
 </script>
 </body>
